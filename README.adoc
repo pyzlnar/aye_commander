@@ -1,0 +1,16 @@
+// Asciidoctor Source
+// AyeCommander README
+//
+// Original author:
+// - pyzlnar
+//
+// Notes:
+// Compile with: $ asciidoctor README.adoc
+
+= AyeCommander
+[A small command gem]
+:toc:
+:showtitle:
+:source-highlighter: coderay
+
+This is a WIP!
