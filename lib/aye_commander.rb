@@ -1,3 +1,4 @@
+require 'aye_commander/limitable'
 require 'aye_commander/command'
 require 'aye_commander/errors'
 

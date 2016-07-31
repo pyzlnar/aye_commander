@@ -7,19 +7,12 @@ module AyeCommander
 
     # Class Methods to be extended to the includer
     module ClassMethods
-      LIMITERS = %i(receives requires returns).freeze
+      include ::AyeCommander::Limitable::ClassMethods
 
       def call(**args)
-        new(args).call
-      end
-
-      LIMITERS.each do |limiter|
-        body = lambda do |*args|
-          attr_accessor(*args)
-          prev_limiter = instance_variable_get("@#{limiter}") || []
-          instance_variable_set "@#{limiter}", prev_limiter | args
-        end
-        define_method limiter, body
+        i = new(args)
+        i.call
+        result i
       end
     end
 
@@ -35,7 +28,7 @@ module AyeCommander
     end
 
     def success?
-      status == success
+      status == :success
     end
 
     def method_missing(name, *args)
