@@ -1,5 +1,5 @@
 describe AyeCommander::Command do
-  let(:command) { Class.new.send(:include, AyeCommander::Command) }
+  let(:command)  { Class.new.send(:include, AyeCommander::Command) }
   let(:instance) { command.new }
 
   context 'when included' do
@@ -10,7 +10,7 @@ describe AyeCommander::Command do
 
   AyeCommander::Command::ClassMethods::LIMITERS.each do |limiter|
     context ".#{limiter}" do
-      let(:args){ %i[arg1 arg2] }
+      let(:args) { %i(arg1 arg2) }
 
       before :each do
         allow_any_instance_of(command).to receive(:_validate_arguments).and_return(true)
@@ -21,7 +21,7 @@ describe AyeCommander::Command do
         expect(command.instance_variable_get("@#{limiter}")).to eq [:arg1, :arg2]
       end
 
-      it "should create accessors for the received values" do
+      it 'should create accessors for the received values' do
         args.each do |arg|
           expect(instance).to respond_to arg
           expect(instance).to respond_to "#{arg}="
