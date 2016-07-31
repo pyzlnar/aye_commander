@@ -1,16 +1,27 @@
+# This will be basically be the module that you will be including into your class.
 module AyeCommander::Command
-  def self.call(**args)
-    new(args).call
+
+  def self.included(includer)
+    includer.extend ClassMethods
   end
 
-  def self.recieves(*args)
-    @recieves ||= []
-    @recieves += args
-  end
+  # Class Methods to be extended to the includer
+  module ClassMethods
+    def call(**args)
+      new(args).call
+    end
 
-  def self.requires(*args)
-    @requires ||= []
-    @requires += args
+    def receives(*args)
+      attr_accessor *args
+      @receives ||= []
+      @receives = @receives | args
+    end
+
+    def requires(*args)
+      attr_accessor *args
+      @requires ||= []
+      @requires = @requires | args
+    end
   end
 
   def initialize(**args)
@@ -29,32 +40,27 @@ module AyeCommander::Command
   end
 
   def method_missing(name, *args)
-    variable = "@#{name}".to_sym
-    if instance_variables.include? variable
-      instance_variable_get variable
-    else
-      super
-    end
+    instance_variable_get "@#{name}" || super
   end
 
   private
   def _validate_arguments(**args)
-    if (required = self.class.instance_variable_get :@requires)
+    if (requires = self.class.instance_variable_get :@requires)
       _validate_required_arguments(requires, args)
     end
 
-    if (recieves = self.class.instance_variable_get :@recieves)
-      _validate_recieved_arguments(recieves, args)
+    if (receives = self.class.instance_variable_get :@receives)
+      _validate_received_arguments(receives, args)
     end
   end
 
   def _validate_required_arguments(requires, args)
     missing = requires - args.keys
-    raise MissingRequiredArgument, "Missing required arguments: #{missing}" if missing.any?
+    raise AyeCommander::MissingRequiredArgument, "Missing required arguments: #{missing}" if missing.any?
   end
 
-  def _validate_recieved_arguments(recieves, args)
-    extras = args.keys - recieves
-    raise UnknownReceivedArgument, "Recieved unknown arguments: #{extras}" if extras.any?
+  def _validate_received_arguments(receives, args)
+    extras = args.keys - receives
+    raise AyeCommander::UnknownReceivedArgument, "Received unknown arguments: #{extras}" if extras.any?
   end
 end
