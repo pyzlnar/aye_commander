@@ -7,22 +7,21 @@ module AyeCommander::Command
 
   # Class Methods to be extended to the includer
   module ClassMethods
+    LIMITERS = %i[receives requires returns]
+
     def call(**args)
       new(args).call
     end
 
-    def receives(*args)
-      attr_accessor *args
-      @receives ||= []
-      @receives = @receives | args
-    end
-
-    def requires(*args)
-      attr_accessor *args
-      @requires ||= []
-      @requires = @requires | args
+    LIMITERS.each do |limiter|
+      define_method limiter, ->(*args) do
+        attr_accessor *args
+        prev_limiter = instance_variable_get("@#{limiter}") || []
+        instance_variable_set "@#{limiter}", prev_limiter | args
+      end
     end
   end
+
 
   def initialize(**args)
     _validate_arguments(args)
