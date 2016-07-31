@@ -13,4 +13,9 @@
 :showtitle:
 :source-highlighter: coderay
 
+image:https://travis-ci.org/pyzlnar/aye_commander.svg?branch=master["Build Status", link="https://travis-ci.org/pyzlnar/aye_commander"]
+
 This is a WIP!
+
+== Introduction
+AyeCommander attempts to be yet another simple gem that takes care of all your Command Pattern necessities in Ruby.
