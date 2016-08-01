@@ -7,4 +7,16 @@ describe AyeCommander::Command do
       expect(command.singleton_class.ancestors).to include AyeCommander::Command::ClassMethods
     end
   end
+
+  context '#initialize' do
+    it 'sets the status to :success if no other succeed has been set' do
+      command.succeeds_with :potato
+      expect(instance.status).to eq :success
+    end
+
+    it 'sets the status to the first suceed if success has been excluded' do
+      command.succeeds_with :potato, exclude_success: true
+      expect(command.new.status).to eq :potato
+    end
+  end
 end

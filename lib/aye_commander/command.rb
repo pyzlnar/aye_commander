@@ -8,6 +8,7 @@ module AyeCommander
     # Class Methods to be extended to the includer
     module ClassMethods
       include ::AyeCommander::Limitable::ClassMethods
+      include ::AyeCommander::Statusable::ClassMethods
 
       def call(**args)
         i = new(args)
@@ -16,19 +17,19 @@ module AyeCommander
       end
     end
 
+    include Statusable
+
+    # Status is set to the first of the suceeds status, which in most scenarios
+    # will be :success
     def initialize(**args)
+      @status = self.class.succeeds.first
       _validate_arguments(args)
-      @status = :success
       args.each do |name, value|
         instance_variable_set "@#{name}", value
       end
     end
 
     def call
-    end
-
-    def success?
-      status == :success
     end
 
     def method_missing(name, *args)
