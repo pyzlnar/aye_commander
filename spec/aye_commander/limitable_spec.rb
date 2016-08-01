@@ -3,36 +3,84 @@ describe AyeCommander::Limitable do
   let(:instance)  { command.new }
   let(:limitable) { AyeCommander::Limitable }
 
-  AyeCommander::Limitable::ClassMethods::LIMITERS.each do |limiter|
-    context ".#{limiter}" do
-      let(:args) { %i(arg1 arg2) }
+  context 'ClassMethods' do
+    let(:args) { %i(arg1 arg2) }
 
+    before :each do
+      allow(AyeCommander::Limitable).to receive(:validate_arguments).and_return(true)
+    end
+
+    context '.save_variable' do
       before :each do
-        allow(AyeCommander::Limitable).to receive(:validate_arguments).and_return(true)
-        command.public_send limiter, *args
+        command.send :save_variable, :@random, args
       end
 
-      it "should add the #{limiter} values to the :@#{limiter} variable" do
-        expect(command.instance_variable_get("@#{limiter}")).to eq [:arg1, :arg2]
+      it 'should add the values to the :@random variable' do
+        expect(command.instance_variable_get :@random).to eq args
+      end
+
+      it 'should add consecutive uses without any problem' do
+        command.send :save_variable, :@random, [:arg3]
+        expect(command.instance_variable_get :@random).to eq %i(arg1 arg2 arg3)
+      end
+
+      it 'should not add repeated args' do
+        command.send :save_variable, :@random, [:arg1, :arg4]
+        expect(command.instance_variable_get :@random).to eq %i(arg1 arg2 arg4)
+      end
+    end
+
+    context '.uses' do
+      it 'should call save_variable' do
+        expect(command).to receive(:save_variable).with(:@uses, args)
+        command.uses(*args)
       end
 
       it 'should create accessors for the received values' do
+        command.uses(*args)
         args.each do |arg|
           expect(instance).to respond_to arg
           expect(instance).to respond_to "#{arg}="
         end
       end
+    end
 
-      it "should add consecutive #{limiter} without any problem" do
-        command.public_send limiter, :arg3
-        expect(command.instance_variable_get("@#{limiter}")).to eq [:arg1, :arg2, :arg3]
-        expect(instance).to respond_to :arg3
-        expect(instance).to respond_to :arg3=
+    context '.receives' do
+      it 'should call .uses' do
+        expect(command).to receive(:uses).with(*args).and_return(true)
+        command.receives(*args)
       end
 
-      it 'should not add repeated args' do
-        command.public_send limiter, :arg1, :arg4
-        expect(command.instance_variable_get("@#{limiter}")).to eq [:arg1, :arg2, :arg4]
+      it 'should add the receives values to the :@receives variable' do
+        allow(command).to receive(:uses).and_return(true)
+        command.receives(*args)
+        expect(command.receives).to eq args
+      end
+    end
+
+    context '.requires' do
+      it 'should call .receives' do
+        expect(command).to receive(:receives).with(*args).and_return(true)
+        command.requires(*args)
+      end
+
+      it 'should add the requires values to the :@requires variable' do
+        allow(command).to receive(:receives).and_return(true)
+        command.requires(*args)
+        expect(command.requires).to eq args
+      end
+    end
+
+    context '.returns' do
+      it 'should call .uses' do
+        expect(command).to receive(:uses).with(*args).and_return(true)
+        command.returns(*args)
+      end
+
+      it 'should add the returns values to the :@returns variable' do
+        allow(command).to receive(:uses).and_return(true)
+        command.returns(*args)
+        expect(command.returns).to eq args
       end
     end
   end

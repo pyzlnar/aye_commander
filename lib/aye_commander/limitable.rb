@@ -4,19 +4,40 @@ module AyeCommander
   module Limitable
     # These methods are the ones that are actually included into the class.
     module ClassMethods
-      LIMITERS = %i(receives requires returns).freeze
+      LIMITERS = %i(receives requires returns uses).freeze
 
-      # All limiters actually behave the same way at a class level, they just
-      # set an instance variable and create attr_accessor for the class.
-      # As a side note, this is the reason of why setting a receives is
-      # recommended over not specifying any.
-      LIMITERS.each do |limiter|
-        body = lambda do |*args|
-          attr_accessor(*args)
-          prev_limiter = instance_variable_get("@#{limiter}") || []
-          instance_variable_set "@#{limiter}", prev_limiter | args
-        end
-        define_method limiter, body
+      # Helps the command define methods to not use method missing on every
+      # instance.
+      def uses(*args)
+        @uses ||= []
+        missing = args - @uses
+        attr_accessor(*missing) if missing.any?
+        save_variable(:@uses, args)
+      end
+
+      # Tells the command which arguments are expected to be received
+      def receives(*args)
+        uses(*args)
+        save_variable(:@receives, args)
+      end
+
+      # Tells the command which arguments are actually required
+      def requires(*args)
+        receives(*args)
+        save_variable(:@requires, args)
+      end
+
+      # Tells the command which arguments to return in the result
+      def returns(*args)
+        uses(*args)
+        save_variable(:@returns, args)
+      end
+
+      private
+
+      def save_variable(name, args)
+        prev = instance_variable_get(name) || []
+        instance_variable_set name, prev | args
       end
     end
 
