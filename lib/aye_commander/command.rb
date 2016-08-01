@@ -18,6 +18,7 @@ module AyeCommander
     end
 
     include Statusable
+    include Inspectable
 
     # Initializes the command with the correct setup
     #
