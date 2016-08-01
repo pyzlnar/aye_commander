@@ -4,10 +4,12 @@ module AyeCommander
   #      instead.
   class Result
     include Inspectable
+    include Statusable
 
-    def initialize(command, limit = command.instance_variables)
+    def initialize(command, limit = [])
+      limit = command.instance_variables if limit.empty?
       limit.each do |iv|
-        instance_variable_set iv, iv.instance_variable_get
+        instance_variable_set iv, command.instance_variable_get(iv)
       end
     end
   end

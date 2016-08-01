@@ -7,13 +7,13 @@ module AyeCommander
 
     # Class Methods to be extended to the includer
     module ClassMethods
-      include ::AyeCommander::Limitable::ClassMethods
-      include ::AyeCommander::Statusable::ClassMethods
+      include Limitable::ClassMethods
+      include Statusable::ClassMethods
 
       def call(**args)
         i = new(args)
         i.call
-        result i
+        Result.new i, returns
       end
     end
 
@@ -46,7 +46,7 @@ module AyeCommander
     end
 
     def respond_to_missing?(name, *args)
-      instance_variable_defined? "@#{name}" || super
+      instance_variable_defined?("@#{name}") || super
     end
   end
 end
