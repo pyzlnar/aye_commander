@@ -9,11 +9,12 @@ module AyeCommander
     module ClassMethods
       include Limitable::ClassMethods
       include Statusable::ClassMethods
+      include Resultable
 
       def call(**args)
         i = new(args)
         i.call
-        Result.new i, returns
+        command_result(i)
       end
     end
 
