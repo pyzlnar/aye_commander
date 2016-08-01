@@ -10,7 +10,7 @@ module AyeCommander
   # are missing when called.
   class MissingRequiredArgument < Error
     def message
-      "Missing required arguments: #{info}"
+      "Missing required arguments: #{@info}"
     end
   end
 
@@ -18,7 +18,7 @@ module AyeCommander
   # unspecified arguments
   class UnknownReceivedArgument < Error
     def message
-      "Received unknown arguments: #{info}"
+      "Received unknown arguments: #{@info}"
     end
   end
 end

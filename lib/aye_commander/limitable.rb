@@ -2,6 +2,7 @@ module AyeCommander
   # This module takes care of command arguments being limited by the user
   # specifics.
   module Limitable
+    # These methods are the ones that are actually included into the class.
     module ClassMethods
       LIMITERS = %i(receives requires returns).freeze
 
@@ -17,6 +18,25 @@ module AyeCommander
         end
         define_method limiter, body
       end
+    end
+
+    # These methods are the ones that validate the arguments and do the cleanup
+    # duty after running the command. They're contained the Limitable namespace
+    # just to not pollute the private namespace of the command.
+
+    def self.validate_arguments(args, requires: [], receives: [])
+      validate_required_arguments(requires, args) if requires.any?
+      validate_received_arguments(receives, args) if receives.any?
+    end
+
+    def self.validate_required_arguments(requires, args)
+      missing = requires - args.keys
+      raise AyeCommander::MissingRequiredArgument, missing if missing.any?
+    end
+
+    def self.validate_received_arguments(receives, args)
+      extras = args.keys - receives
+      raise AyeCommander::UnknownReceivedArgument, extras if extras.any?
     end
   end
 end
