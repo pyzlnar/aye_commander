@@ -19,10 +19,11 @@ module AyeCommander
       result = Class.new do
         include Inspectable
         include Statusable
+        include InstanceVariableReadable
 
         attr_reader(*readers)
 
-        initialize = lambda do |variables|
+        initialize = lambda do |variables = []|
           variables.each do |name, value|
             instance_variable_set name, value
           end

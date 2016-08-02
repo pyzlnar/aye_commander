@@ -20,6 +20,8 @@ module AyeCommander
 
     include Statusable
     include Inspectable
+    include InstanceVariableReadable
+    include InstanceVariableWriteable
 
     # Initializes the command with the correct setup
     #
@@ -40,14 +42,6 @@ module AyeCommander
     end
 
     def call
-    end
-
-    def method_missing(name, *args)
-      instance_variable_get "@#{name}" || super
-    end
-
-    def respond_to_missing?(name, *args)
-      instance_variable_defined?("@#{name}") || super
     end
   end
 end
