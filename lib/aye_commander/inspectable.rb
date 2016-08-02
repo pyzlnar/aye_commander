@@ -18,5 +18,14 @@ module AyeCommander
         hash
       end
     end
+
+    # Returns a hash of only the required instance variables
+    def to_result_hash
+      if self.class.respond_to?(:returns) && self.class.returns.any?
+        to_hash([:status] | self.class.returns)
+      else
+        to_hash
+      end
+    end
   end
 end

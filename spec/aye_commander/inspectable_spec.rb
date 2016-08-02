@@ -24,4 +24,17 @@ describe AyeCommander::Inspectable do
       expect(instance.to_hash([:@variable, :other])).to eq result
     end
   end
+
+  context '#to_result_hash' do
+    it 'gives a hash of all values for the result if no return was specified' do
+      result = { :@status => :success, :@variable => :something, :@other => :potato }
+      expect(instance.to_result_hash).to eq result
+    end
+
+    it 'gives the necessary values for the result when a return was specified' do
+      command.returns :other
+      result = { :@status => :success, :@other => :potato }
+      expect(instance.to_result_hash).to eq result
+    end
+  end
 end

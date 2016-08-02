@@ -14,7 +14,7 @@ module AyeCommander
       def call(**args)
         i = new(args)
         i.call
-        command_result(i)
+        result i.to_result_hash
       end
     end
 

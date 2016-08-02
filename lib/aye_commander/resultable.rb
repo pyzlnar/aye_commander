@@ -3,8 +3,9 @@ module AyeCommander
   # NOTE Figure out if a result is needed or just return command instance
   #      instead.
   module Resultable
-    def command_result(command)
-      result_class.new(command, [:status] | returns)
+
+    def result(values)
+      result_class.new(values)
     end
 
     def result_class
@@ -21,11 +22,9 @@ module AyeCommander
 
         attr_reader(*readers)
 
-        initialize = lambda do |command, limit = []|
-          limit = command.instance_variables if limit.one?
-          limit.each do |iv|
-            ivn = iv =~ /\A@/ ? iv : "@#{iv}"
-            instance_variable_set ivn, command.instance_variable_get(ivn)
+        initialize = lambda do |variables|
+          variables.each do |name, value|
+            instance_variable_set name, value
           end
         end
 
