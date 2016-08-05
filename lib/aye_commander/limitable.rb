@@ -4,7 +4,7 @@ module AyeCommander
   module Limitable
     # These methods are the ones that are actually included into the class.
     module ClassMethods
-      LIMITERS = %i(receives requires returns uses).freeze
+      LIMITERS = %i(uses receives requires returns).freeze
 
       # Helps the command define methods to not use method missing on every
       # instance.
@@ -52,12 +52,12 @@ module AyeCommander
 
     def self.validate_required_arguments(requires, args)
       missing = requires - args.keys
-      raise AyeCommander::MissingRequiredArgument, missing if missing.any?
+      raise AyeCommander::MissingRequiredArgumentError, missing if missing.any?
     end
 
     def self.validate_received_arguments(receives, args)
       extras = args.keys - receives
-      raise AyeCommander::UnknownReceivedArgument, extras if extras.any?
+      raise AyeCommander::UnknownReceivedArgumentError, extras if extras.any?
     end
   end
 end

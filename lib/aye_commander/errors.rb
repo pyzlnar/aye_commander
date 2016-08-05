@@ -8,7 +8,7 @@ module AyeCommander
 
   # Raised when command specifies 'requires' and one or more required arguments
   # are missing when called.
-  class MissingRequiredArgument < Error
+  class MissingRequiredArgumentError < Error
     def message
       "Missing required arguments: #{@info}"
     end
@@ -16,7 +16,7 @@ module AyeCommander
 
   # Raised when the command specifies 'receives' and receives one or more
   # unspecified arguments
-  class UnknownReceivedArgument < Error
+  class UnknownReceivedArgumentError < Error
     def message
       "Received unknown arguments: #{@info}"
     end

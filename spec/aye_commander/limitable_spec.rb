@@ -119,7 +119,7 @@ describe AyeCommander::Limitable do
 
     it 'raises an error when the required arguments are not fully contained in the received ones' do
       requires = %i(hello you doc)
-      expect { limitable.validate_required_arguments requires, args }.to raise_error AyeCommander::MissingRequiredArgument
+      expect { limitable.validate_required_arguments requires, args }.to raise_error AyeCommander::MissingRequiredArgumentError
     end
   end
 
@@ -133,7 +133,7 @@ describe AyeCommander::Limitable do
 
     it 'raises an error when it receives arguments not contained in the receives array' do
       receives = %i(hello how potato)
-      expect { limitable.validate_received_arguments receives, args }.to raise_error AyeCommander::UnknownReceivedArgument
+      expect { limitable.validate_received_arguments receives, args }.to raise_error AyeCommander::UnknownReceivedArgumentError
     end
   end
 end
