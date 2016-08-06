@@ -246,10 +246,66 @@ end
 ----
 
 == Abort!
+Now let's imagine that at point in time you want stop running the command. Not necessarily because
+something went wrong, but you don't need to do anything more for the time being. What can you do?
+
+Well the most obvious (and possibly more correct) answer is you can use `return` to exit out of the
+flow. However at times you may define other methods in a command you kinda wish to exit from them,
+something you can't do with a return.
+
+[source,ruby]
+----
+def call
+  do_something
+  # A return may work here
+  return if status == :cant_do_next
+end
+
+private
+
+def do_something
+  # But it doesn't work if you want to use it from here instead
+  return if status == :cant_do_next
+end
+----
+
+To solve this problem, command has a method named `#abort!`.
+Calling abort will stop the command on it's trails and will immediately return the result. It *WILL
+NOT* change the status so if you need change or fail the status, do it before aborting.
+
+[source,ruby]
+----
+class ProcessCommand
+  include AyeCommander::Command
+  succeeds_with :processed
+
+  def call
+    do_something
+    # These lines will never be called
+    do_something_else
+  end
+
+  private
+
+  def do_something
+    if true
+      @status = :processed
+      abort!
+    end
+  end
+
+  def do_something_else
+    @status = :something_else
+  end
+end
+
+ProcessCommand.call
+=> #<SimpleCommand::Result @status: processed>
+----
 
 == Missing for v1.0
 - 0.1.0 Abort
 - 0.2.0 Hooks
 - 0.3.0 Commander
-- 0.4.0? Config
+- 0.4.0 ?Config
 - ???
