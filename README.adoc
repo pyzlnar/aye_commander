@@ -231,7 +231,7 @@ will be initialized as the first in your successful statuses.
 ----
 class ProcessCommand
   include AyeCommander::Command
-  succeds_with :started, :progress, :complete, exclude_success: true
+  succeeds_with :started, :progress, :complete, exclude_success: true
 
   def call
     status # => :started
