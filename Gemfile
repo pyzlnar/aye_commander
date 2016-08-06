@@ -7,5 +7,6 @@ gem 'rake'
 group :test do
   gem 'pry'
   gem 'rspec'
+  gem 'simplecov'
   gem 'codeclimate-test-reporter', require: nil
 end
