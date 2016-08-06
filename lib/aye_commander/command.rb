@@ -11,11 +11,11 @@ module AyeCommander
       include Statusable::ClassMethods
       include Resultable
 
-      def call(**args)
+      def call(skip_cleanup: false, **args)
         i = new(args)
         validate_arguments(args)
         i.call
-        result i.to_result_hash
+        skip_cleanup ? result(i.to_hash) : result(i.to_result_hash)
       end
     end
 

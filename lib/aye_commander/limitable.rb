@@ -37,7 +37,7 @@ module AyeCommander
       end
 
       # Validates the limiter arguments
-      def validate_arguments(args, skip_validations: false, skip_cleanup: :_)
+      def validate_arguments(args, skip_validations: false)
         unless [true, :requires].include?(skip_validations) || requires.empty?
           validate_required_arguments(args)
         end
