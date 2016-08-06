@@ -27,12 +27,7 @@ module AyeCommander
       private
 
       def respond_to_missing?(name, *args)
-        var_name = "@#{name}"
-        if instance_variable_defined? var_name
-          true
-        else
-          super
-        end
+        instance_variable_defined?("@#{name}") || super
       rescue NameError
         super
       end

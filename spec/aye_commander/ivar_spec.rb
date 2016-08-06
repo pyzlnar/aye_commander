@@ -37,6 +37,21 @@ describe AyeCommander::Ivar::Readable do
       instance.taco
     end
   end
+
+  context 'p#respond_to_missing?' do
+    it 'returns true if the variable name is defined' do
+      instance.instance_variable_set :@taco, :badger
+      expect(instance.send(:respond_to_missing?, :taco, [false])).to be true
+    end
+
+    it 'uses super if the variable name is not defined' do
+      expect(instance.send(:respond_to_missing?, :taco, [false])).to be false
+    end
+
+    it 'uses super if the variable name is not valid' do
+      expect(instance.send(:respond_to_missing?, :taco!, [false])).to be false
+    end
+  end
 end
 
 describe AyeCommander::Ivar::Writeable do
@@ -52,6 +67,16 @@ describe AyeCommander::Ivar::Writeable do
       instance.taco = 1
       expect(instance).to respond_to :taco
       expect(instance).to respond_to :taco=
+    end
+  end
+
+  context 'p#respond_to_missing?' do
+    it 'returns true if variable name ends with =' do
+      expect(instance.send(:respond_to_missing?, :taco=, [false])).to be true
+    end
+
+    it 'uses super otherwise' do
+      expect(instance.send(:respond_to_missing?, :taco, [false])).to be false
     end
   end
 end
