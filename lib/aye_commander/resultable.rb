@@ -22,7 +22,7 @@ module AyeCommander
 
         result = Class.new do
           include Inspectable
-          include Statusable
+          include Status::Readable
           include IvarReadable
           extend IvarReadable::ClassMethods
 

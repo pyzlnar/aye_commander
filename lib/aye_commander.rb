@@ -1,9 +1,9 @@
 require 'aye_commander/ivar_readable'
 require 'aye_commander/ivar_writeable'
 require 'aye_commander/inspectable'
-require 'aye_commander/statusable'
 require 'aye_commander/limitable'
 require 'aye_commander/resultable'
+require 'aye_commander/status'
 require 'aye_commander/errors'
 require 'aye_commander/command'
 
