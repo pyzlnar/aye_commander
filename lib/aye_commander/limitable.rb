@@ -1,8 +1,31 @@
 module AyeCommander
   # This module takes care of command arguments being limited by the user
   # specifics.
+  # Be careful since we're abusing module object model a bit and this is
+  # actually divided into 2 different scopes. (As a namespace, and using an
+  # inner ClassMethod module to extend)
   module Limitable
-    # These methods are the ones that are actually included into the class.
+    # These methods are the ones that validate the arguments and do the cleanup
+    # duty after running the command. They're contained the Limitable namespace
+    # just to not pollute the private namespace of the command.
+
+    def self.validate_arguments(args, requires: [], receives: [])
+      validate_required_arguments(requires, args) if requires.any?
+      validate_received_arguments(receives, args) if receives.any?
+    end
+
+    def self.validate_required_arguments(requires, args)
+      missing = requires - args.keys
+      raise AyeCommander::MissingRequiredArgumentError, missing if missing.any?
+    end
+
+    def self.validate_received_arguments(receives, args)
+      extras = args.keys - receives
+      raise AyeCommander::UnknownReceivedArgumentError, extras if extras.any?
+    end
+
+    # These methods are the ones that are included at a class level on every
+    # command
     module ClassMethods
       LIMITERS = %i(uses receives requires returns).freeze
 
@@ -34,25 +57,6 @@ module AyeCommander
           limiters[__method__] |= args
         end
       end
-    end
-
-    # These methods are the ones that validate the arguments and do the cleanup
-    # duty after running the command. They're contained the Limitable namespace
-    # just to not pollute the private namespace of the command.
-
-    def self.validate_arguments(args, requires: [], receives: [])
-      validate_required_arguments(requires, args) if requires.any?
-      validate_received_arguments(receives, args) if receives.any?
-    end
-
-    def self.validate_required_arguments(requires, args)
-      missing = requires - args.keys
-      raise AyeCommander::MissingRequiredArgumentError, missing if missing.any?
-    end
-
-    def self.validate_received_arguments(receives, args)
-      extras = args.keys - receives
-      raise AyeCommander::UnknownReceivedArgumentError, extras if extras.any?
     end
   end
 end

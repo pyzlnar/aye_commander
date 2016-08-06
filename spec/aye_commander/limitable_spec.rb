@@ -3,56 +3,6 @@ describe AyeCommander::Limitable do
   let(:instance)  { command.new }
   let(:limitable) { AyeCommander::Limitable }
 
-  context 'ClassMethods' do
-    let(:args) { %i(arg1 arg2) }
-
-    before :each do
-      allow(AyeCommander::Limitable).to receive(:validate_arguments).and_return(true)
-    end
-
-    context '#uses' do
-      it 'should call save_variable' do
-        command.uses(*args)
-        expect(command.uses).to eq args
-      end
-
-      it 'should create accessors for the received values' do
-        command.uses(*args)
-        args.each do |arg|
-          expect(instance).to respond_to arg
-          expect(instance).to respond_to "#{arg}="
-        end
-      end
-    end
-
-    %i(receives requires returns).each do |limiter|
-      context "##{limiter}" do
-        before :each do
-          command.public_send limiter, *args
-        end
-
-        it 'should call .uses' do
-          expect(command).to receive(:uses).with(*args).and_return(true)
-          command.public_send limiter, *args
-        end
-
-        it 'should save the values to a class instance variable' do
-          expect(command.limiters[limiter]).to eq args
-        end
-
-        it 'should add consecutive values without any problem' do
-          command.public_send limiter, :arg3
-          expect(command.limiters[limiter]).to eq %i(arg1 arg2 arg3)
-        end
-
-        it 'should not add repeated args' do
-          command.public_send limiter, :arg1, :arg4
-          expect(command.limiters[limiter]).to eq %i(arg1 arg2 arg4)
-        end
-      end
-    end
-  end
-
   context '.validate_arguments' do
     let(:args) { { hello: :world, how: :are, you: :! } }
 
@@ -112,6 +62,56 @@ describe AyeCommander::Limitable do
     it 'raises an error when it receives arguments not contained in the receives array' do
       receives = %i(hello how potato)
       expect { limitable.validate_received_arguments receives, args }.to raise_error AyeCommander::UnknownReceivedArgumentError
+    end
+  end
+
+  context 'ClassMethods' do
+    let(:args) { %i(arg1 arg2) }
+
+    before :each do
+      allow(AyeCommander::Limitable).to receive(:validate_arguments).and_return(true)
+    end
+
+    context '#uses' do
+      it 'should call save_variable' do
+        command.uses(*args)
+        expect(command.uses).to eq args
+      end
+
+      it 'should create accessors for the received values' do
+        command.uses(*args)
+        args.each do |arg|
+          expect(instance).to respond_to arg
+          expect(instance).to respond_to "#{arg}="
+        end
+      end
+    end
+
+    %i(receives requires returns).each do |limiter|
+      context "##{limiter}" do
+        before :each do
+          command.public_send limiter, *args
+        end
+
+        it 'should call .uses' do
+          expect(command).to receive(:uses).with(*args).and_return(true)
+          command.public_send limiter, *args
+        end
+
+        it 'should save the values to a class instance variable' do
+          expect(command.limiters[limiter]).to eq args
+        end
+
+        it 'should add consecutive values without any problem' do
+          command.public_send limiter, :arg3
+          expect(command.limiters[limiter]).to eq %i(arg1 arg2 arg3)
+        end
+
+        it 'should not add repeated args' do
+          command.public_send limiter, :arg1, :arg4
+          expect(command.limiters[limiter]).to eq %i(arg1 arg2 arg4)
+        end
+      end
     end
   end
 end
