@@ -1,4 +1,4 @@
-describe AyeCommander::IvarReadable do
+describe AyeCommander::Ivar::ClassMethods do
   let(:command)  { Class.new.send(:include, AyeCommander::Command) }
   let(:instance) { command.new }
   let(:result)   { command.result_class.new }
@@ -15,6 +15,11 @@ describe AyeCommander::IvarReadable do
       expect(result).to_not respond_to :taco=
     end
   end
+end
+
+describe AyeCommander::Ivar::Readable do
+  let(:command)  { Class.new.send(:include, AyeCommander::Command) }
+  let(:instance) { command.new }
 
   context '#method_missing' do
     it 'raises if asked a method without an instance variable defined' do
@@ -30,6 +35,23 @@ describe AyeCommander::IvarReadable do
       expect(command).to receive(:define_missing_reader).with(:taco)
       instance.instance_variable_set :@taco, :badger
       instance.taco
+    end
+  end
+end
+
+describe AyeCommander::Ivar::Writeable do
+  let(:command)  { Class.new.send(:include, AyeCommander::Command) }
+  let(:instance) { command.new }
+
+  context '#method_missing' do
+    it 'responds to equality assignments' do
+      expect { instance.taco = 1 }.to_not raise_error
+    end
+
+    it 'defines the method so next time it doesnt go through method_missing' do
+      instance.taco = 1
+      expect(instance).to respond_to :taco
+      expect(instance).to respond_to :taco=
     end
   end
 end

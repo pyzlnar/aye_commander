@@ -33,11 +33,11 @@ describe AyeCommander::Resultable do
     it 'includes the necessary result modules' do
       expect(result_class).to include AyeCommander::Inspectable
       expect(result_class).to include AyeCommander::Status::Readable
-      expect(result_class).to include AyeCommander::IvarReadable
+      expect(result_class).to include AyeCommander::Ivar::Readable
     end
 
     it 'extends the necessary result modules' do
-      expect(result_class.singleton_class).to include AyeCommander::IvarReadable::ClassMethods
+      expect(result_class.singleton_class).to include AyeCommander::Ivar::ClassMethods
     end
 
     it 'defines readers for the class' do
