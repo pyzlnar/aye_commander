@@ -126,7 +126,7 @@ describe AyeCommander::Limitable do
 
     it 'raises an error when it receives arguments not contained in the receives array' do
       command.receives :hello, :how, :potato
-      expect { command.validate_received_arguments args }.to raise_error AyeCommander::UnknownReceivedArgumentError
+      expect { command.validate_received_arguments args }.to raise_error AyeCommander::UnexpectedReceivedArgumentError
     end
   end
 end
