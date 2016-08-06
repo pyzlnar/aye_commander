@@ -19,7 +19,7 @@ module AyeCommander
       result = Class.new do
         include Inspectable
         include Statusable
-        include InstanceVariableReadable
+        include IvarReadable
 
         attr_reader(*readers)
 

@@ -1,5 +1,5 @@
-require 'aye_commander/instance_variable_readable'
-require 'aye_commander/instance_variable_writeable'
+require 'aye_commander/ivar_readable'
+require 'aye_commander/ivar_writeable'
 require 'aye_commander/inspectable'
 require 'aye_commander/statusable'
 require 'aye_commander/limitable'

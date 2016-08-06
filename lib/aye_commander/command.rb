@@ -21,8 +21,8 @@ module AyeCommander
 
     include Statusable
     include Inspectable
-    include InstanceVariableReadable
-    include InstanceVariableWriteable
+    include IvarReadable
+    include IvarWriteable
 
     # Initializes the command with the correct setup
     #
