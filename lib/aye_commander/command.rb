@@ -9,7 +9,7 @@ module AyeCommander
     module ClassMethods
       include Limitable::ClassMethods
       include Statusable::ClassMethods
-      include Resultable
+      include Resultable::ClassMethods
 
       def call(skip_cleanup: false, **args)
         i = new(args)
