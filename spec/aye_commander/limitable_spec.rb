@@ -10,30 +10,10 @@ describe AyeCommander::Limitable do
       allow(AyeCommander::Limitable).to receive(:validate_arguments).and_return(true)
     end
 
-    context '.save_variable' do
-      before :each do
-        command.send :save_variable, :@random, args
-      end
-
-      it 'should add the values to the :@random variable' do
-        expect(command.instance_variable_get :@random).to eq args
-      end
-
-      it 'should add consecutive uses without any problem' do
-        command.send :save_variable, :@random, [:arg3]
-        expect(command.instance_variable_get :@random).to eq %i(arg1 arg2 arg3)
-      end
-
-      it 'should not add repeated args' do
-        command.send :save_variable, :@random, [:arg1, :arg4]
-        expect(command.instance_variable_get :@random).to eq %i(arg1 arg2 arg4)
-      end
-    end
-
-    context '.uses' do
+    context '#uses' do
       it 'should call save_variable' do
-        expect(command).to receive(:save_variable).with(:@uses, args)
         command.uses(*args)
+        expect(command.uses).to eq args
       end
 
       it 'should create accessors for the received values' do
@@ -45,42 +25,30 @@ describe AyeCommander::Limitable do
       end
     end
 
-    context '.receives' do
-      it 'should call .uses' do
-        expect(command).to receive(:uses).with(*args).and_return(true)
-        command.receives(*args)
-      end
+    %i(receives requires returns).each do |limiter|
+      context "##{limiter}" do
+        before :each do
+          command.public_send limiter, *args
+        end
 
-      it 'should add the receives values to the :@receives variable' do
-        allow(command).to receive(:uses).and_return(true)
-        command.receives(*args)
-        expect(command.receives).to eq args
-      end
-    end
+        it 'should call .uses' do
+          expect(command).to receive(:uses).with(*args).and_return(true)
+          command.public_send limiter, *args
+        end
 
-    context '.requires' do
-      it 'should call .receives' do
-        expect(command).to receive(:receives).with(*args).and_return(true)
-        command.requires(*args)
-      end
+        it 'should save the values to a class instance variable' do
+          expect(command.limiters[limiter]).to eq args
+        end
 
-      it 'should add the requires values to the :@requires variable' do
-        allow(command).to receive(:receives).and_return(true)
-        command.requires(*args)
-        expect(command.requires).to eq args
-      end
-    end
+        it 'should add consecutive values without any problem' do
+          command.public_send limiter, :arg3
+          expect(command.limiters[limiter]).to eq %i(arg1 arg2 arg3)
+        end
 
-    context '.returns' do
-      it 'should call .uses' do
-        expect(command).to receive(:uses).with(*args).and_return(true)
-        command.returns(*args)
-      end
-
-      it 'should add the returns values to the :@returns variable' do
-        allow(command).to receive(:uses).and_return(true)
-        command.returns(*args)
-        expect(command.returns).to eq args
+        it 'should not add repeated args' do
+          command.public_send limiter, :arg1, :arg4
+          expect(command.limiters[limiter]).to eq %i(arg1 arg2 arg4)
+        end
       end
     end
   end
@@ -117,6 +85,11 @@ describe AyeCommander::Limitable do
       expect { limitable.validate_required_arguments requires, args }.to_not raise_error
     end
 
+    it 'does nothing if it receives extra arguments' do
+      requires = %i(hello you)
+      expect { limitable.validate_required_arguments requires, **args, extra: :arg }.to_not raise_error
+    end
+
     it 'raises an error when the required arguments are not fully contained in the received ones' do
       requires = %i(hello you doc)
       expect { limitable.validate_required_arguments requires, args }.to raise_error AyeCommander::MissingRequiredArgumentError
@@ -127,6 +100,11 @@ describe AyeCommander::Limitable do
     let(:args) { { hello: :world, how: :are, you: :! } }
 
     it 'does nothing if receives contains all the received arguments' do
+      receives = %i(hello how you)
+      expect { limitable.validate_received_arguments receives, args }.to_not raise_error
+    end
+
+    it 'does nothing if some of the arguments are missing' do
       receives = %i(hello how you potato)
       expect { limitable.validate_received_arguments receives, args }.to_not raise_error
     end

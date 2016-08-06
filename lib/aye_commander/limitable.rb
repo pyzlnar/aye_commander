@@ -6,38 +6,33 @@ module AyeCommander
     module ClassMethods
       LIMITERS = %i(uses receives requires returns).freeze
 
+      # Contains all the limiters
+      def limiters
+        @limiters ||= Hash.new([])
+      end
+
       # Helps the command define methods to not use method missing on every
       # instance.
       def uses(*args)
-        @uses ||= []
-        missing = args - @uses
+        uses = limiters[:uses]
+        return uses if args.empty?
+
+        missing = args - uses
         attr_accessor(*missing) if missing.any?
-        save_variable(:@uses, args)
+
+        limiters[:uses] |= args
       end
 
-      # Tells the command which arguments are expected to be received
-      def receives(*args)
-        uses(*args)
-        save_variable(:@receives, args)
-      end
-
-      # Tells the command which arguments are actually required
-      def requires(*args)
-        receives(*args)
-        save_variable(:@requires, args)
-      end
-
-      # Tells the command which arguments to return in the result
-      def returns(*args)
-        uses(*args)
-        save_variable(:@returns, args)
-      end
-
-      private
-
-      def save_variable(name, args)
-        prev = instance_variable_get(name) || []
-        instance_variable_set name, prev | args
+      # Defines #receives #requires and #returns
+      # #receives Tells the command which arguments are expected to be received
+      # #requires Tells the command which arguments are actually required
+      # #returns  Tells the command which arguments to return in the result
+      LIMITERS[1..-1].each do |limiter|
+        define_method(limiter) do |*args|
+          return limiters[__method__] if args.empty?
+          uses(*args)
+          limiters[__method__] |= args
+        end
       end
     end
 
