@@ -1,6 +1,6 @@
 module AyeCommander
   # Helps a command and result repond to read methods of instance variables
-  module InstanceVariableReadable
+  module IvarReadable
     def method_missing(name, *args)
       var_name = "@#{name}"
       if instance_variable_defined? var_name

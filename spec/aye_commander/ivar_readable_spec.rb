@@ -1,4 +1,4 @@
-describe AyeCommander::InstanceVariableReadable do
+describe AyeCommander::IvarReadable do
   let(:command)  { Class.new.send(:include, AyeCommander::Command) }
   let(:instance) { command.new }
   let(:result)   { command.result_class.new }

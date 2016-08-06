@@ -1,11 +1,11 @@
 module AyeCommander
   # Method missing to write instance_variables
-  module InstanceVariableWriteable
+  module IvarWriteable
     def method_missing(name, *args)
-      if (match = /(.*)=\z/.match(name))
-        var_name = "@#{match[1]}"
+      if name[-1] == '='
+        var_name = "@#{name[0...-1]}"
         instance_variable_set var_name, args.first
-        self.class.uses match[1]
+        self.class.uses name[0...-1]
       else
         super
       end
@@ -16,7 +16,7 @@ module AyeCommander
     private
 
     def respond_to_missing?(name, *args)
-      /=\z/ =~ name ? true : super
+      name[-1] == '=' || super
     end
   end
 end
