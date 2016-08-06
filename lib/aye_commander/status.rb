@@ -1,7 +1,7 @@
 module AyeCommander
   # This module helps Command and Result to be able to respond to various
   # status and status responses.
-  module Statusable
+  module Status
     # Status related class Methods to be included
     module ClassMethods
       # Returns and/or initializes the :@succeeds class instance variable
@@ -18,16 +18,29 @@ module AyeCommander
       end
     end
 
-    attr_accessor :status
+    # These module defines methods that allow to read and know about the status
+    module Readable
+      attr_reader :status
 
-    # Whether or not the command is succesfull
-    def success?
-      self.class.succeeds.include?(status)
+      # Whether or not the command is succesful
+      def success?
+        self.class.succeeds.include?(status)
+      end
+
+      # Boolean opposite of success
+      def failure?
+        !success?
+      end
     end
 
-    # Boolean opposite of success
-    def failure?
-      !success?
+    # These module defines methods that allow to modify the status
+    module Writeable
+      attr_writer :status
+
+      # Fails the status
+      def fail!(status = :failure)
+        @status = status
+      end
     end
   end
 end

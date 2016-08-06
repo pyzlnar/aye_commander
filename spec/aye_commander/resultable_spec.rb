@@ -32,7 +32,7 @@ describe AyeCommander::Resultable do
   context 'p.define_result_class' do
     it 'includes the necessary result modules' do
       expect(result_class).to include AyeCommander::Inspectable
-      expect(result_class).to include AyeCommander::Statusable
+      expect(result_class).to include AyeCommander::Status::Readable
       expect(result_class).to include AyeCommander::IvarReadable
     end
 

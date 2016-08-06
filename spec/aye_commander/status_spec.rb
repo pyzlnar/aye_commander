@@ -1,13 +1,6 @@
-describe AyeCommander::Statusable do
+describe AyeCommander::Status::ClassMethods do
   let(:command)  { Class.new.send(:include, AyeCommander::Command) }
   let(:instance) { command.new }
-
-  context 'when included' do
-    it 'adds status and status= methods' do
-      expect(instance).to respond_to :status
-      expect(instance).to respond_to :status=
-    end
-  end
 
   context '.succeeds' do
     it 'returns [:success] if nothing else has been set' do
@@ -46,6 +39,17 @@ describe AyeCommander::Statusable do
       expect(command.succeeds).to eq args
     end
   end
+end
+
+describe AyeCommander::Status::Readable do
+  let(:command)  { Class.new.send(:include, AyeCommander::Command) }
+  let(:instance) { command.new }
+
+  context 'when included' do
+    it 'adds #status method' do
+      expect(instance).to respond_to :status
+    end
+  end
 
   context '#success?' do
     it 'returns true if nothing else is set' do
@@ -71,3 +75,27 @@ describe AyeCommander::Statusable do
     end
   end
 end
+
+describe AyeCommander::Status::Writeable do
+  let(:command)  { Class.new.send(:include, AyeCommander::Command) }
+  let(:instance) { command.new }
+
+  context 'when included' do
+    it 'adds #status= method' do
+      expect(instance).to respond_to :status=
+    end
+  end
+
+  context '#fail!' do
+    it 'fails the command with :failure' do
+      instance.fail!
+      expect(instance.status).to eq :failure
+    end
+
+    it 'fails the command with specified status' do
+      instance.fail!(:meltdown)
+      expect(instance.status).to eq :meltdown
+    end
+  end
+end
+

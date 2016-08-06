@@ -8,7 +8,7 @@ module AyeCommander
     # Class Methods to be extended to the includer
     module ClassMethods
       include Limitable::ClassMethods
-      include Statusable::ClassMethods
+      include Status::ClassMethods
       include Resultable::ClassMethods
       include IvarReadable::ClassMethods
 
@@ -20,10 +20,11 @@ module AyeCommander
       end
     end
 
-    include Statusable
     include Inspectable
     include IvarReadable
     include IvarWriteable
+    include Status::Readable
+    include Status::Writeable
 
     # Initializes the command with the correct setup
     #
