@@ -7,19 +7,21 @@ module AyeCommander
 
     # Class Methods to be extended to the includer
     module ClassMethods
-      include Limitable::ClassMethods
-      include Status::ClassMethods
-      include Resultable::ClassMethods
+      include Abortable::ClassMethods
       include IvarReadable::ClassMethods
+      include Limitable::ClassMethods
+      include Resultable::ClassMethods
+      include Status::ClassMethods
 
       def call(skip_cleanup: false, **args)
-        i = new(args)
+        command = new(args)
         validate_arguments(args)
-        i.call
-        skip_cleanup ? result(i.to_hash) : result(i.to_result_hash)
+        call_being_abortable(command)
+        skip_cleanup ? result(command.to_hash) : result(command.to_result_hash)
       end
     end
 
+    include Abortable
     include Inspectable
     include IvarReadable
     include IvarWriteable
