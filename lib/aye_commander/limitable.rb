@@ -2,62 +2,62 @@ module AyeCommander
   # This module takes care of command arguments being limited by the user
   # specifics.
   module Limitable
-    # These methods are the ones that are actually included into the class.
+    # These methods are the ones that are included at a class level on every
+    # command
     module ClassMethods
       LIMITERS = %i(uses receives requires returns).freeze
+
+      # Contains all the limiters
+      def limiters
+        @limiters ||= Hash.new([])
+      end
 
       # Helps the command define methods to not use method missing on every
       # instance.
       def uses(*args)
-        @uses ||= []
-        missing = args - @uses
+        uses = limiters[:uses]
+        return uses if args.empty?
+
+        missing = args - uses
         attr_accessor(*missing) if missing.any?
-        save_variable(:@uses, args)
+
+        limiters[:uses] |= args
       end
 
-      # Tells the command which arguments are expected to be received
-      def receives(*args)
-        uses(*args)
-        save_variable(:@receives, args)
+      # Defines #receives #requires and #returns
+      # #receives Tells the command which arguments are expected to be received
+      # #requires Tells the command which arguments are actually required
+      # #returns  Tells the command which arguments to return in the result
+      LIMITERS[1..-1].each do |limiter|
+        define_method(limiter) do |*args|
+          return limiters[__method__] if args.empty?
+          uses(*args)
+          limiters[__method__] |= args
+        end
       end
 
-      # Tells the command which arguments are actually required
-      def requires(*args)
-        receives(*args)
-        save_variable(:@requires, args)
+      # Validates the limiter arguments
+      def validate_arguments(args, skip_validations: false)
+        unless [true, :requires].include?(skip_validations) || requires.empty?
+          validate_required_arguments(args)
+        end
+
+        unless [true, :receives].include?(skip_validations) || receives.empty?
+          validate_received_arguments(args)
+        end
       end
 
-      # Tells the command which arguments to return in the result
-      def returns(*args)
-        uses(*args)
-        save_variable(:@returns, args)
+      # Validates the required arguments
+      def validate_required_arguments(args)
+        missing = requires - args.keys
+        raise AyeCommander::MissingRequiredArgumentError, missing if missing.any?
       end
 
-      private
-
-      def save_variable(name, args)
-        prev = instance_variable_get(name) || []
-        instance_variable_set name, prev | args
+      # Validates the received arguments
+      def validate_received_arguments(args)
+        extras = args.keys - (receives | requires)
+        raise AyeCommander::UnknownReceivedArgumentError, extras if extras.any?
       end
-    end
-
-    # These methods are the ones that validate the arguments and do the cleanup
-    # duty after running the command. They're contained the Limitable namespace
-    # just to not pollute the private namespace of the command.
-
-    def self.validate_arguments(args, requires: [], receives: [])
-      validate_required_arguments(requires, args) if requires.any?
-      validate_received_arguments(receives, args) if receives.any?
-    end
-
-    def self.validate_required_arguments(requires, args)
-      missing = requires - args.keys
-      raise AyeCommander::MissingRequiredArgumentError, missing if missing.any?
-    end
-
-    def self.validate_received_arguments(receives, args)
-      extras = args.keys - receives
-      raise AyeCommander::UnknownReceivedArgumentError, extras if extras.any?
     end
   end
 end
