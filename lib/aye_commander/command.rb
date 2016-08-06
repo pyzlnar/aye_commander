@@ -10,6 +10,7 @@ module AyeCommander
       include Limitable::ClassMethods
       include Statusable::ClassMethods
       include Resultable::ClassMethods
+      include IvarReadable::ClassMethods
 
       def call(skip_cleanup: false, **args)
         i = new(args)

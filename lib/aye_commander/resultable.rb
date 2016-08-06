@@ -24,6 +24,7 @@ module AyeCommander
           include Inspectable
           include Statusable
           include IvarReadable
+          extend IvarReadable::ClassMethods
 
           attr_reader(*readers)
 

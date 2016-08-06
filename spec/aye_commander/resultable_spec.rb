@@ -36,6 +36,10 @@ describe AyeCommander::Resultable do
       expect(result_class).to include AyeCommander::IvarReadable
     end
 
+    it 'extends the necessary result modules' do
+      expect(result_class.singleton_class).to include AyeCommander::IvarReadable::ClassMethods
+    end
+
     it 'defines readers for the class' do
       command.uses :variable
       expect(result_class.new).to respond_to :variable
