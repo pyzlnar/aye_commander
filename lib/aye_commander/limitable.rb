@@ -56,7 +56,7 @@ module AyeCommander
       # Validates the received arguments
       def validate_received_arguments(args)
         extras = args.keys - (receives | requires)
-        raise AyeCommander::UnknownReceivedArgumentError, extras if extras.any?
+        raise AyeCommander::UnexpectedReceivedArgumentError, extras if extras.any?
       end
     end
   end

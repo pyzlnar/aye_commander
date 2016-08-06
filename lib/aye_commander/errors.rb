@@ -16,9 +16,9 @@ module AyeCommander
 
   # Raised when the command specifies 'receives' and receives one or more
   # unspecified arguments
-  class UnknownReceivedArgumentError < Error
+  class UnexpectedReceivedArgumentError < Error
     def message
-      "Received unknown arguments: #{@info}"
+      "Received unexpected arguments: #{@info}"
     end
   end
 end
