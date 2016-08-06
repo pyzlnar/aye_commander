@@ -304,7 +304,6 @@ ProcessCommand.call
 ----
 
 == Missing for v1.0
-- 0.1.0 Abort
 - 0.2.0 Hooks
 - 0.3.0 Commander
 - 0.4.0 ?Config
