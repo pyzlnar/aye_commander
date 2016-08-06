@@ -15,6 +15,7 @@
 
 image:https://travis-ci.org/pyzlnar/aye_commander.svg?branch=master["Build Status", link="https://travis-ci.org/pyzlnar/aye_commander"]
 image:https://codeclimate.com/github/pyzlnar/aye_commander/badges/gpa.svg["Code Climate", link="https://codeclimate.com/github/pyzlnar/aye_commander"]
+image:https://codeclimate.com/github/pyzlnar/aye_commander/badges/coverage.svg["Test Coverage", link="https://codeclimate.com/github/pyzlnar/aye_commander/coverage"]
 
 == Introduction
 AyeCommander attempts to be yet another simple gem that takes care of all your Command Pattern
