@@ -7,4 +7,5 @@ gem 'rake'
 group :test do
   gem 'pry'
   gem 'rspec'
+  gem 'codeclimate-test-reporter', require: nil
 end
