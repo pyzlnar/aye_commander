@@ -3,7 +3,7 @@ describe AyeCommander::Limitable do
   let(:instance)  { command.new }
   let(:args)      { %i(arg1 arg2) }
 
-  context '#uses' do
+  context '.uses' do
     it 'should call save_variable' do
       command.uses(*args)
       expect(command.uses).to eq args
@@ -19,7 +19,7 @@ describe AyeCommander::Limitable do
   end
 
   %i(receives requires returns).each do |limiter|
-    context "##{limiter}" do
+    context ".#{limiter}" do
       before :each do
         command.public_send limiter, *args
       end
@@ -45,38 +45,38 @@ describe AyeCommander::Limitable do
     end
   end
 
-  context '#validate_arguments' do
+  context '.validate_arguments' do
     let(:args) { { hello: :world, how: :are, you: :! } }
 
-    it 'calls #validate_required_arguments if it has requires' do
+    it 'calls .validate_required_arguments if it has requires' do
       expect(command).to receive(:validate_required_arguments).and_return(true)
       command.requires :something
       command.validate_arguments args
     end
 
-    it 'does not call #validate_required_arguments if theres no requires' do
+    it 'does not call .validate_required_arguments if theres no requires' do
       expect(command).to_not receive(:validate_required_arguments)
       command.validate_arguments args
     end
 
-    it 'does not call #validate_required_arguments with skip_validations: :requires option' do
+    it 'does not call .validate_required_arguments with skip_validations: :requires option' do
       command.requires :something
       expect(command).to_not receive(:validate_required_arguments)
       command.validate_arguments args, skip_validations: :requires
     end
 
-    it 'calls #validate_received_arguments if it has receives' do
+    it 'calls .validate_received_arguments if it has receives' do
       expect(command).to receive(:validate_received_arguments).and_return(true)
       command.receives :something
       command.validate_arguments args
     end
 
-    it 'does not call #validate_received_argumnts if theres no receives' do
+    it 'does not call .validate_received_argumnts if theres no receives' do
       expect(command).to_not receive(:validate_received_arguments)
       command.validate_arguments args
     end
 
-    it 'does not call #validate_receiveed_arguments with skip_validations: :receives option' do
+    it 'does not call .validate_receiveed_arguments with skip_validations: :receives option' do
       command.receives :something
       expect(command).to_not receive(:validate_received_arguments)
       command.validate_arguments args, skip_validations: :receives
@@ -92,7 +92,7 @@ describe AyeCommander::Limitable do
     end
   end
 
-  context '#validate_required_arguments' do
+  context '.validate_required_arguments' do
     let(:args) { { hello: :world, how: :are, you: :! } }
 
     it 'does nothing if the required arguments are contained in the received ones' do
@@ -111,7 +111,7 @@ describe AyeCommander::Limitable do
     end
   end
 
-  context '#validate_received_arguments' do
+  context '.validate_received_arguments' do
     let(:args) { { hello: :world, how: :are, you: :! } }
 
     it 'does nothing if receives contains all the received arguments' do
