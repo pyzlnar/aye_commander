@@ -72,7 +72,7 @@ error is raised.
 Arguments in `requires` are automatically added to `receives`, but no exception error is raised
 unless you actually use a `receives`.
 
-All of this validation can be overriden by sending the `:skip_validation` option when calling the
+All of this validation can be overriden by sending the `:skip_validations` option when calling the
 command.
 
 === Returning Arguments

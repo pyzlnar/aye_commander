@@ -13,6 +13,7 @@ module AyeCommander
 
       def call(**args)
         i = new(args)
+        validate_arguments(args)
         i.call
         result i.to_result_hash
       end
@@ -32,9 +33,6 @@ module AyeCommander
     # arguments have no inconsistencies.
     def initialize(**args)
       @status = self.class.succeeds.first
-
-      options = { requires: self.class.requires, receives: self.class.receives }
-      Limitable.validate_arguments(args, options)
 
       args.each do |name, value|
         instance_variable_set "@#{name}", value
