@@ -98,7 +98,7 @@ end
 
 # At this point, our command will receive and return everything and anything.
 SimpleCommand.call(something: :or, other: :var)
-# #<SimpleCommand::Result @status: success, @something: or, @other: var>
+=> #<SimpleCommand::Result @status: success, @something: or, @other: var>
 
 class SimpleCommand
   requires :these, :two
@@ -106,14 +106,14 @@ end
 
 # Now calling the command without :these and :two will raise an error
 SimpleCommand.call
-# AyeCommander::MissingRequiredArgumentError: Missing required arguments: [:these, :two]
+=> AyeCommander::MissingRequiredArgumentError: Missing required arguments: [:these, :two]
 
 SimpleCommand.call(these: 1, two: 2)
-# #<SimpleCommand::Result @status: success, @these: 1, @two: 2>
+=> #<SimpleCommand::Result @status: success, @these: 1, @two: 2>
 
 # Adding any extras at this point is still ok!
 SimpleCommand.call(these: 1, two: 2, three: 3)
-# #<SimpleCommand::Result @status: success, @these: 1, @two: 2, @three: 3>
+=> #<SimpleCommand::Result @status: success, @these: 1, @two: 2, @three: 3>
 
 class SimpleCommand
   receives :four
@@ -121,14 +121,14 @@ end
 
 # Now that a receives has been used, any extra arguments sent will raise an error
 SimpleCommand.call(these: 1, two: 2, three: 3)
-# AyeCommander::UnknownReceivedArgumentError: Received unknown arguments: [:three]
+=> AyeCommander::UnknownReceivedArgumentError: Received unknown arguments: [:three]
 
 SimpleCommand.call(these: 1, two: 2, four: 4)
-# #<SimpleCommand::Result @status: success, @these: 1, @two: 2, @four: 4>
+=> #<SimpleCommand::Result @status: success, @these: 1, @two: 2, @four: 4>
 
 # Not sending something that is on the receives is ok as well!
 SimpleCommand.call(these: 1, two: 2)
-# #<SimpleCommand::Result @status: success, @these: 1, @two: 2>
+=> #<SimpleCommand::Result @status: success, @these: 1, @two: 2>
 
 class SimpleCommand
   returns :sum
@@ -140,7 +140,7 @@ end
 
 # Finally a returns will help clean up the result at the end!
 SimpleCommand.call(these: 1, two: 2, four: 4)
-# #<SimpleCommand::Result @status: success, @sum: 3>
+=> #<SimpleCommand::Result @status: success, @sum: 3>
 
 # At any point you can override the receives requires or returns.
 
@@ -151,11 +151,97 @@ SimpleCommand.call(skip_validations: true)
 SimpleCommand.call(skip_validations: :receives)
 SimpleCommand.call(skip_validations: :requires)
 
-# Skips returns cleanup
+# Skips result cleanup
 SimpleCommand.call(skip_cleanup: true)
 ----
 
-== What's in a status
+== What's in a status?
+
+As you may have noticed by now, every time a command is called a `status` is returned regardless
+of whether or not we cleanup. So what exactly is a status?
+
+Well, at its simplest form the status tells us the whether or not the command has succeeded. By
+default a command will be successful, and will fail if you change the status to *ANYTHING* that's
+not `:success`.
+
+[source,ruby]
+----
+class ReactorStatusCommand
+  include AyeCommander::Command
+
+  def call?
+    success? # => true
+    @status = :meltdown
+    success? # => false
+  end
+end
+
+ReactorStatusCommand.call.failure?
+=> true
+----
+
+As a side note you can use the `fail!` method to fail the command at any point.
+[source,ruby]
+----
+def call
+  # These lines are functionally identical
+  @status = :failure
+  fail!
+
+  # So are these
+  @status = :meltdown
+  fail!(:meltdown)
+end
+----
+
+NOTE: Failing a command *WILL NOT* stop the rest of the code from running. (More on that later)
+
+=== Multiple succeeds
+
+Up to this point the status may seem a bit bland... And you may be right!
+
+A status can tell you more than just a simple suceed and fail! It can tell you how it succeeded or
+how it failed. Doing this with failures is fairly easy, since anything that's not `:success` is
+considered a failure, but how do you we add more status as successes?
+
+[source,ruby]
+----
+class CreateUserTokenCommand
+  include AyeCommander::Command
+  succeeds_with :previously_created
+
+  def call
+    status # => :success
+    if user.token.present?
+      @status = :previously_created
+      success? # => true
+    else
+      user.create_random_token
+      fail!(:token_not_created) if user.token.blank?
+    end
+  end
+end
+----
+
+This contrived example hopefully helps you understand when multiple success status can be useful.
+In fact, you can actually even exclude success from the successful status. If you do, the status
+will be initialized as the first in your successful statuses.
+
+[source,ruby]
+----
+class ProcessCommand
+  include AyeCommander::Command
+  succeds_with :started, :progress, :complete, exclude_success: true
+
+  def call
+    status # => :started
+    do_something
+    @status = :progress
+    do_something_else
+    @status = everything_ok? ? :complete : :failure
+  end
+end
+----
 
 == Abort!
 
