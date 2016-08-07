@@ -246,6 +246,7 @@ end
 ----
 
 == Abort!
+
 Now let's imagine that at point in time you want stop running the command. Not necessarily because
 something went wrong, but you don't need to do anything more for the time being. What can you do?
 
@@ -301,6 +302,128 @@ end
 
 ProcessCommand.call
 => #<SimpleCommand::Result @status: processed>
+----
+
+== Getting Hooked
+
+A command also comes with your standard set of before, around and after hooks to tweak the command.
+The easiest way to understand them, it to see the order of execution of your command.
+
+[source,ruby]
+----
+# Rough representation of your typical call command
+def call
+  initialize_command
+  validate_args
+  before_hooks
+  around_hooks { call_command }
+  after_hooks
+  return_result
+end
+----
+
+Before going deeper into each kind of hook it's worth mentioning the behavior which all hooks share:
+
+- All hooks can be declared either using a block, a symbol to a method, or any object containing
+  code that can be _unzipped_ using `&object`. (Procs, lambdas, method objects)
+- Multiple hooks of the same kind can be declared, they will always be run from the first one that
+  was declared to the last one.
+- If you need a hook to be run at the begining, you can use the `prepend: true` option.
+- It might be obvious but worth noting that hooks are run in the command instance; as such you have
+  access to everything the command has.
+
+[source,ruby]
+----
+# Basic hook order
+before do
+  # I run first!
+  # If I wanted, I could abort the rest of the command from here!
+end
+
+before :my_hook
+
+lambda_from_somewhere_else = -> { "I run third!" }
+before lambda_from_somewhere_else
+
+private
+
+def my_hook
+  # I run second
+end
+----
+
+[source,ruby]
+----
+# More complicated hook behavior
+after :third do
+  # fourth
+end
+
+after :first, :second, prepend: true
+----
+
+IMPORTANT: Just because there's a lot of liberty with hook order it doesn't mean that its
+recommended to abuse it. Always try to keep the order of your hooks clear, and use `prepend` only
+if you *NEED* to.
+
+=== Before Hooks
+
+The most important thing to note of before hooks is that while indeed they're called before the
+command, they're also called *AFTER* the validations have run. This is important because it does
+mean that you if your command requires any arguments they can't be added through a before hook.
+
+While it was possible to make the before hooks run before the validations this decision was taken
+because `requires` and `receives` are meant to be *ARGUMENT* validators. This also means several
+things:
+
+- Receives and requires become a way to tell the _users_ of your command how to use it properly
+- When a validator error is raised you always know it's because of the arguments you sent
+
+=== After Hooks
+
+After hooks are the easiest to understand. They run after your command was called, but before the
+result is created, so if you need to tweak your results a bit you can do it in here!
+
+=== Around Hooks
+
+Oh man, around hooks. It seems that every time I see an implementation of around hooks they work in
+a different way, so it's kinda hard to standarize them.
+
+Around hooks in a command are sadly no different, as they just try to be easy to understand.
+
+First things first, when you use an around hook you must compromise to *ALWAYS* have a `yield` at a
+point of your code to call the next step. If you don't your command will never be called.
+
+Now, when there are multiple around hooks the first one will call the second one and so forth until
+the command is called. This means that before the `yield` the code is run in the order the arounds
+were, but after the `yield` it is run in the *REVERSE* order.
+
+Always keep this in mind.
+
+[source,ruby]
+----
+around do
+  puts "First before yield"
+  yield
+  puts "First after yield"
+end
+
+around do
+  puts "Second before yield"
+  yield
+  puts "Second after yield"
+end
+
+def call
+  puts "Command called"
+end
+
+# Would output:
+=> First before yield
+=> Second before yield
+=> Command called
+=> Second after yield
+=> First after yield
 ----
 
 == Missing for v1.0
