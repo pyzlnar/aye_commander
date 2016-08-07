@@ -5,8 +5,9 @@ module AyeCommander
   module Abortable
     # This handle the rescue of the Aborted exception.
     module ClassMethods
-      def call_being_abortable(command)
-        command.call
+      def abortable
+        yield
+        :ok
       rescue Aborted
         :aborted
       end

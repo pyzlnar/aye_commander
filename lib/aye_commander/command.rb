@@ -16,7 +16,9 @@ module AyeCommander
       def call(skip_cleanup: false, **args)
         command = new(args)
         validate_arguments(args)
-        call_being_abortable(command)
+        abortable do
+          command.call
+        end
         skip_cleanup ? result(command.to_hash) : result(command.to_result_hash)
       end
     end

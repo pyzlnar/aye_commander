@@ -8,9 +8,15 @@ describe AyeCommander::Command::ClassMethods do
     it 'calls several methods in a specific order' do
       expect(command).to  receive(:new).with(args).and_return(instance)
       expect(command).to  receive(:validate_arguments).with(args)
-      expect(command).to  receive(:call_being_abortable).with(instance)
+      expect(command).to  receive(:abortable)
       expect(instance).to receive(:to_result_hash).and_return([])
       expect(command).to  receive(:result).with([])
+      command.call(args)
+    end
+
+    it 'calls several methods in the abortable block' do
+      allow(command).to receive(:new).and_return(instance)
+      expect(instance).to receive(:call)
       command.call(args)
     end
 
