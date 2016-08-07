@@ -1,4 +1,4 @@
-$:.push File.expand_path("../lib", __FILE__)
+$LOAD_PATH.push File.expand_path('../lib', __FILE__)
 require 'aye_commander/version'
 
 Gem::Specification.new do |spec|
@@ -11,6 +11,6 @@ Gem::Specification.new do |spec|
   spec.summary    = 'A simple command pattern gem'
 
   spec.license    = 'MIT'
-  spec.files      = Dir["LICENSE", "README.adoc", "lib/**/*"]
-  spec.test_files = Dir["spec/**/*"]
+  spec.files      = Dir['LICENSE', 'README.adoc', 'lib/**/*']
+  spec.test_files = Dir['spec/**/*']
 end

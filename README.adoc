@@ -14,8 +14,297 @@
 :source-highlighter: coderay
 
 image:https://travis-ci.org/pyzlnar/aye_commander.svg?branch=master["Build Status", link="https://travis-ci.org/pyzlnar/aye_commander"]
-
-This is a WIP!
+image:https://codeclimate.com/github/pyzlnar/aye_commander/badges/gpa.svg["Code Climate", link="https://codeclimate.com/github/pyzlnar/aye_commander"]
+image:https://codeclimate.com/github/pyzlnar/aye_commander/badges/coverage.svg["Test Coverage", link="https://codeclimate.com/github/pyzlnar/aye_commander/coverage"]
 
 == Introduction
-AyeCommander attempts to be yet another simple gem that takes care of all your Command Pattern necessities in Ruby.
+AyeCommander attempts to be yet another simple gem that takes care of all your Command Pattern
+necessities in Ruby.
+
+== The Command
+
+Creating a command is really easy, you only need to do two things to get rocking:
+
+- Include the `AyeCommander::Command` module
+- Define a method named `call`
+
+[source,ruby]
+----
+class ObtainRandomCommand
+  include AyeCommander::Command
+
+  def call
+    @random = array.sample
+  end
+end
+----
+
+To use the command, you simply call it from somewhere else.
+
+[source,ruby]
+----
+result = ObtainRandomCommand.call(array: [1, 2, 3])
+=> #<ObtainRandomCommand::Result @status: success, @array: [1, 2, 3], @random: 3>
+
+result.random
+=> 3
+----
+
+It really doesn't get simpler than that, but there's actually more to a command than that, so lets
+have a deeper look at the more complicated parts.
+
+== Limiting the arguments
+
+As you keep working with commands, you may realize that's actually a bit complicated to know what a
+command expects to receive as arguments, what's the minimum necessary it needs to work and which of
+the variables returned in the result are relevant to you.
+
+=== Receiving Arguments
+
+AyeCommander comes with two ways of limiting the arguments that your command needs to be able to
+run: `requires` and `receives`.
+
+A `requires` tells the command that it can't run properly without having said arguments so it will
+in fact raise a `MissingRequiredArgumentError` if the command is called without said arguments.
+
+A `receives` tells the command that it can *ONLY* run the command with that set of arguments, and
+that receiving any extra is actually an error. In this case if a command receives any surplus, an
+error is raised.
+
+Arguments in `requires` are automatically added to `receives`, but no exception error is raised
+unless you actually use a `receives`.
+
+All of this validation can be overriden by sending the `:skip_validations` option when calling the
+command.
+
+=== Returning Arguments
+
+So now that your command runned, you may have ended with a result with a bunch of variables that
+you may actually not even need. If that's the case then you can use the `returns` method which as
+you might imagine cleans up the result by just adding the variables that you specified.
+
+=== Uses
+
+There's actually one last _limiter_ method. This one is a bit special since it doesn't really do
+anything to validate or clean your arguments. The only use of `uses` is to help your command not
+rely on method_missing as much. It's advised that you put the rest of the variables you use here
+but hey if you think that small performance boost if not worth it, I'm not going to force you.
+
+=== Limiters Examples
+
+[source,ruby]
+----
+class SimpleCommand
+  include AyeCommander::Command
+end
+
+# At this point, our command will receive and return everything and anything.
+SimpleCommand.call(something: :or, other: :var)
+=> #<SimpleCommand::Result @status: success, @something: or, @other: var>
+
+class SimpleCommand
+  requires :these, :two
+end
+
+# Now calling the command without :these and :two will raise an error
+SimpleCommand.call
+=> AyeCommander::MissingRequiredArgumentError: Missing required arguments: [:these, :two]
+
+SimpleCommand.call(these: 1, two: 2)
+=> #<SimpleCommand::Result @status: success, @these: 1, @two: 2>
+
+# Adding any extras at this point is still ok!
+SimpleCommand.call(these: 1, two: 2, three: 3)
+=> #<SimpleCommand::Result @status: success, @these: 1, @two: 2, @three: 3>
+
+class SimpleCommand
+  receives :four
+end
+
+# Now that a receives has been used, any extra arguments sent will raise an error
+SimpleCommand.call(these: 1, two: 2, three: 3)
+=> AyeCommander::UnexpectedReceivedArgumentError: Received unexpected arguments: [:three]
+
+SimpleCommand.call(these: 1, two: 2, four: 4)
+=> #<SimpleCommand::Result @status: success, @these: 1, @two: 2, @four: 4>
+
+# Not sending something that is on the receives is ok as well!
+SimpleCommand.call(these: 1, two: 2)
+=> #<SimpleCommand::Result @status: success, @these: 1, @two: 2>
+
+class SimpleCommand
+  returns :sum
+
+  def call
+    @sum = these + two
+  end
+end
+
+# Finally a returns will help clean up the result at the end!
+SimpleCommand.call(these: 1, two: 2, four: 4)
+=> #<SimpleCommand::Result @status: success, @sum: 3>
+
+# At any point you can override the receives requires or returns.
+
+# Skips receives and requires
+SimpleCommand.call(skip_validations: true)
+
+# Skips either
+SimpleCommand.call(skip_validations: :receives)
+SimpleCommand.call(skip_validations: :requires)
+
+# Skips result cleanup
+SimpleCommand.call(skip_cleanup: true)
+----
+
+== What's in a status?
+
+As you may have noticed by now, every time a command is called a `status` is returned regardless
+of whether or not we cleanup. So what exactly is a status?
+
+Well, at its simplest form the status tells us the whether or not the command has succeeded. By
+default a command will be successful, and will fail if you change the status to *ANYTHING* that's
+not `:success`.
+
+[source,ruby]
+----
+class ReactorStatusCommand
+  include AyeCommander::Command
+
+  def call?
+    success? # => true
+    @status = :meltdown
+    success? # => false
+  end
+end
+
+ReactorStatusCommand.call.failure?
+=> true
+----
+
+As a side note you can use the `fail!` method to fail the command at any point.
+[source,ruby]
+----
+def call
+  # These lines are functionally identical
+  @status = :failure
+  fail!
+
+  # So are these
+  @status = :meltdown
+  fail!(:meltdown)
+end
+----
+
+NOTE: Failing a command *WILL NOT* stop the rest of the code from running. (More on that later)
+
+=== Multiple succeeds
+
+Up to this point the status may seem a bit bland... And you may be right!
+
+A status can tell you more than just a simple suceed and fail! It can tell you how it succeeded or
+how it failed. Doing this with failures is fairly easy, since anything that's not `:success` is
+considered a failure, but how do you we add more status as successes?
+
+[source,ruby]
+----
+class CreateUserTokenCommand
+  include AyeCommander::Command
+  succeeds_with :previously_created
+
+  def call
+    status # => :success
+    if user.token.present?
+      @status = :previously_created
+      success? # => true
+    else
+      user.create_random_token
+      fail!(:token_not_created) if user.token.blank?
+    end
+  end
+end
+----
+
+This contrived example hopefully helps you understand when multiple success status can be useful.
+In fact, you can actually even exclude success from the successful status. If you do, the status
+will be initialized as the first in your successful statuses.
+
+[source,ruby]
+----
+class ProcessCommand
+  include AyeCommander::Command
+  succeeds_with :started, :progress, :complete, exclude_success: true
+
+  def call
+    status # => :started
+    do_something
+    @status = :progress
+    do_something_else
+    @status = everything_ok? ? :complete : :failure
+  end
+end
+----
+
+== Abort!
+Now let's imagine that at point in time you want stop running the command. Not necessarily because
+something went wrong, but you don't need to do anything more for the time being. What can you do?
+
+Well the most obvious (and possibly more correct) answer is you can use `return` to exit out of the
+flow. However at times you may define other methods in a command you kinda wish to exit from them,
+something you can't do with a return.
+
+[source,ruby]
+----
+def call
+  do_something
+  # A return may work here
+  return if status == :cant_do_next
+end
+
+private
+
+def do_something
+  # But it doesn't work if you want to use it from here instead
+  return if status == :cant_do_next
+end
+----
+
+To solve this problem, command has a method named `#abort!`.
+Calling abort will stop the command on it's trails and will immediately return the result. It *WILL
+NOT* change the status so if you need change or fail the status, do it before aborting.
+
+[source,ruby]
+----
+class ProcessCommand
+  include AyeCommander::Command
+  succeeds_with :processed
+
+  def call
+    do_something
+    # These lines will never be called
+    do_something_else
+  end
+
+  private
+
+  def do_something
+    if true
+      @status = :processed
+      abort!
+    end
+  end
+
+  def do_something_else
+    @status = :something_else
+  end
+end
+
+ProcessCommand.call
+=> #<SimpleCommand::Result @status: processed>
+----
+
+== Missing for v1.0
+- 0.2.0 Hooks
+- 0.3.0 Commander
+- 0.4.0 ?Config
+- ???
