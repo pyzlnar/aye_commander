@@ -123,7 +123,7 @@ end
 
 # Now that a receives has been used, any extra arguments sent will raise an error
 SimpleCommand.call(these: 1, two: 2, three: 3)
-=> AyeCommander::UnknownReceivedArgumentError: Received unknown arguments: [:three]
+=> AyeCommander::UnexpectedReceivedArgumentError: Received unexpected arguments: [:three]
 
 SimpleCommand.call(these: 1, two: 2, four: 4)
 => #<SimpleCommand::Result @status: success, @these: 1, @two: 2, @four: 4>
