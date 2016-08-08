@@ -1,4 +1,5 @@
 require 'aye_commander/abortable'
+require 'aye_commander/hookable'
 require 'aye_commander/inspectable'
 require 'aye_commander/ivar'
 require 'aye_commander/limitable'
