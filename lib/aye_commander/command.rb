@@ -8,6 +8,7 @@ module AyeCommander
     # Class Methods to be extended to the includer
     module ClassMethods
       include Abortable::ClassMethods
+      include Hookable::ClassMethods
       include Ivar::ClassMethods
       include Limitable::ClassMethods
       include Resultable::ClassMethods
