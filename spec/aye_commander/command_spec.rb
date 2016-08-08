@@ -16,7 +16,16 @@ describe AyeCommander::Command::ClassMethods do
 
     it 'calls several methods in the abortable block' do
       allow(command).to receive(:new).and_return(instance)
+      expect(command).to receive(:call_before_hooks)
       expect(instance).to receive(:call)
+      expect(command).to receive(:call_after_hooks)
+      command.call(args)
+    end
+
+    it 'calls around hooks only if they exist' do
+      command.around { :something }
+      allow(command).to receive(:new).and_return(instance)
+      expect(command).to receive(:call_around_hooks)
       command.call(args)
     end
 
