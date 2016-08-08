@@ -391,27 +391,28 @@ a different way, so it's kinda hard to standarize them.
 
 Around hooks in a command are sadly no different, as they just try to be easy to understand.
 
-First things first, when you use an around hook you must compromise to *ALWAYS* have a `yield` at a
-point of your code to call the next step. If you don't your command will never be called.
+First things first, when you use an around hook you must compromise to *ALWAYS* be able to receive
+an object and call it at some point in your method/block. If you don't, your command will never be
+called.
 
 Now, when there are multiple around hooks the first one will call the second one and so forth until
-the command is called. This means that before the `yield` the code is run in the order the arounds
-were, but after the `yield` it is run in the *REVERSE* order.
+the command is called. This means that before the `call` the code is run in the order the arounds
+were, but after the `call` it is run in the *REVERSE* order.
 
 Always keep this in mind.
 
 [source,ruby]
 ----
-around do
-  puts "First before yield"
-  yield
-  puts "First after yield"
+around do |step|
+  puts "First before call"
+  step.call
+  puts "First after call"
 end
 
-around do
-  puts "Second before yield"
-  yield
-  puts "Second after yield"
+around do |step|
+  puts "Second before call"
+  step.call
+  puts "Second after call"
 end
 
 def call
@@ -419,15 +420,14 @@ def call
 end
 
 # Would output:
-=> First before yield
-=> Second before yield
+=> First before call
+=> Second before call
 => Command called
-=> Second after yield
-=> First after yield
+=> Second after call
+=> First after call
 ----
 
 == Missing for v1.0
-- 0.2.0 Hooks
 - 0.3.0 Commander
 - 0.4.0 ?Config
 - ???
