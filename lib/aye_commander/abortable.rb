@@ -1,27 +1,17 @@
 module AyeCommander
-  Aborted = Class.new(RuntimeError)
-
   # This module helps deal with early exits during a command
   module Abortable
-    # This handle the rescue of the Aborted exception.
+    # Abortable class methods
     module ClassMethods
+      # Catches :abort! to make sure everything is ok
       def abortable
-        yield
-        :ok
-      rescue Aborted
-        :aborted
+        catch(:abort!) { yield }
       end
     end
 
-    # The easiest way to stop the flow from wherever is actually raising an
-    # exception. I actually scratched my head for weeks on how Interactor did
-    # this before hitting enlightment.
-    #
-    # In theory using exception for control flow is not recommended since it's
-    # slower (and harder to understand) but in these specific scenarios where
-    # the code is contained it should be fine. I hope.
+    # Throws an :abort! to stop the current command flow
     def abort!
-      raise Aborted
+      throw :abort!
     end
   end
 end
