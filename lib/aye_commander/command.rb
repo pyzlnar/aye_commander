@@ -22,7 +22,7 @@ module AyeCommander
           around_hooks.any? ? call_around_hooks(command) : command.call
           call_after_hooks(command)
         end
-        skip_cleanup ? result(command.to_hash) : result(command.to_result_hash)
+        result(command, skip_cleanup)
       end
     end
 

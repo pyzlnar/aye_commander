@@ -2,8 +2,19 @@ module AyeCommander
   module Resultable
     # This helps define the Result returns after running a command
     module ClassMethods
+      def result(command, skip_cleanup = false)
+        case skip_cleanup
+        when :command
+          command
+        when true
+          new_result(command.to_hash)
+        else
+          new_result(command.to_result_hash)
+        end
+      end
+
       # Returns an instance of the Result
-      def result(values)
+      def new_result(values)
         result_class.new(values)
       end
 
