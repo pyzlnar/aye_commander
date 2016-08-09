@@ -12,6 +12,7 @@ module AyeCommander
         @limiters ||= Hash.new([])
       end
 
+      # TODO Possibly remove uses
       # Helps the command define methods to not use method missing on every
       # instance.
       def uses(*args)
@@ -50,13 +51,13 @@ module AyeCommander
       # Validates the required arguments
       def validate_required_arguments(args)
         missing = requires - args.keys
-        raise AyeCommander::MissingRequiredArgumentError, missing if missing.any?
+        raise MissingRequiredArgumentError, missing if missing.any?
       end
 
       # Validates the received arguments
       def validate_received_arguments(args)
         extras = args.keys - (receives | requires)
-        raise AyeCommander::UnexpectedReceivedArgumentError, extras if extras.any?
+        raise UnexpectedReceivedArgumentError, extras if extras.any?
       end
     end
   end
