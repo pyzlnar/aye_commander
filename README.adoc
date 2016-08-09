@@ -51,13 +51,13 @@ result.random
 ----
 
 It really doesn't get simpler than that, but there's actually more to a command than that, so lets
-have a deeper look at the more complicated parts.
+have a look at the more complicated parts.
 
 == Limiting the arguments
 
 As you keep working with commands, you may realize that's actually a bit complicated to know what a
 command expects to receive as arguments, what's the minimum necessary it needs to work and which of
-the variables returned in the result are relevant to you.
+all the variables returned in the result are actually relevant to you.
 
 === Receiving Arguments
 
@@ -74,14 +74,13 @@ error is raised.
 Arguments in `requires` are automatically added to `receives`, but no exception error is raised
 unless you actually use a `receives`.
 
-All of this validation can be overriden by sending the `:skip_validations` option when calling the
-command.
+All validations can be skipped by sending the `:skip_validations` option when calling the command.
 
 === Returning Arguments
 
-So now that your command runned, you may have ended with a result with a bunch of variables that
-you may actually not even need. If that's the case then you can use the `returns` method which as
-you might imagine cleans up the result by just adding the variables that you specified.
+So now that your command ran, your result might end up with a bunch of variables that you may
+actually not even need. If that's the case then you can use the `returns` method which as you might
+imagine, cleans up the result by just returning the variables that you specified.
 
 === Uses
 
@@ -332,6 +331,9 @@ Before going deeper into each kind of hook it's worth mentioning the behavior wh
 - It might be obvious but worth noting that hooks are run in the command instance; as such you have
   access to everything the command has.
 
+NOTE: Remember that calling `abort!` will stop the command on it's tracks and return the result
+immediately. This means that if you call `abort!` during `call`, after_hooks *WILL NOT* run.
+
 [source,ruby]
 ----
 # Basic hook order
@@ -373,7 +375,7 @@ command, they're also called *AFTER* the validations have run. This is important
 mean that you if your command requires any arguments they can't be added through a before hook.
 
 While it was possible to make the before hooks run before the validations this decision was taken
-because `requires` and `receives` are meant to be *ARGUMENT* validators. This also means several
+because `requires` and `receives` are meant to be *ARGUMENT* validators. This also means a couple of
 things:
 
 - Receives and requires become a way to tell the _users_ of your command how to use it properly
@@ -389,7 +391,7 @@ result is created, so if you need to tweak your results a bit you can do it in h
 Oh man, around hooks. It seems that every time I see an implementation of around hooks they work in
 a different way, so it's kinda hard to standarize them.
 
-Around hooks in a command are sadly no different, as they just try to be easy to understand.
+Around hooks in a command are sadly no different, as they just try to make sense.
 
 First things first, when you use an around hook you must compromise to *ALWAYS* be able to receive
 an object and call it at some point in your method/block. If you don't, your command will never be
@@ -403,15 +405,15 @@ Always keep this in mind.
 
 [source,ruby]
 ----
-around do |step|
+around do |next_step|
   puts "First before call"
-  step.call
+  next_step.call
   puts "First after call"
 end
 
-around do |step|
+around do |next_step|
   puts "Second before call"
-  step.call
+  next_step.call
   puts "Second after call"
 end
 
