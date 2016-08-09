@@ -23,8 +23,9 @@ module AyeCommander
         end
 
         # Defines .call_before_hooks .call_around_hooks and .call_after_hooks
+        # Calls the hooks one by one
         define_method "call_#{kind}_hooks" do |command|
-          call_hooks(kind, command)
+          prepare_hooks(kind, command).each(&:call)
         end
       end
 
@@ -33,11 +34,6 @@ module AyeCommander
       # Hash that saves the hooks
       def hooks
         @hooks ||= Hash.new([])
-      end
-
-      # Calls the hooks one by one
-      def call_hooks(kind, command)
-        prepare_hooks(kind, command).each(&:call)
       end
 
       # Prepares the hooks so they can just be called.
@@ -56,7 +52,7 @@ module AyeCommander
         [around_proc]
       end
 
-      # Makes all the hooks callable
+      # Makes all the hooks callable in the command context
       def callable_hooks(kind, command)
         hooks[kind].map do |hook|
           case hook

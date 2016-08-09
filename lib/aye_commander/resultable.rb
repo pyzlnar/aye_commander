@@ -17,9 +17,11 @@ module AyeCommander
 
       # Defines the Result class
       def define_result_class
+        # TODO Make this line more clear
         # Define as much as possible whether it's used or not
         readers = [:status] | uses
 
+        # TODO Extract initializer into a module
         result = Class.new do
           include Inspectable
           include Status::Readable
