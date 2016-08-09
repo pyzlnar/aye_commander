@@ -1,4 +1,4 @@
-describe AyeCommander::Resultable do
+describe AyeCommander::Resultable::ClassMethods do
   let(:command)  { Class.new.send(:include, AyeCommander::Command) }
   let(:instance) { command.new }
   let(:result_class) { command.result_class }
@@ -31,6 +31,7 @@ describe AyeCommander::Resultable do
 
   context 'p.define_result_class' do
     it 'includes the necessary result modules' do
+      expect(result_class).to include AyeCommander::Initializable
       expect(result_class).to include AyeCommander::Inspectable
       expect(result_class).to include AyeCommander::Status::Readable
       expect(result_class).to include AyeCommander::Ivar::Readable
