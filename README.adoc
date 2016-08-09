@@ -51,13 +51,13 @@ result.random
 ----
 
 It really doesn't get simpler than that, but there's actually more to a command than that, so lets
-have a deeper look at the more complicated parts.
+have a look at the more complicated parts.
 
 == Limiting the arguments
 
 As you keep working with commands, you may realize that's actually a bit complicated to know what a
 command expects to receive as arguments, what's the minimum necessary it needs to work and which of
-the variables returned in the result are relevant to you.
+all the variables returned in the result are actually relevant to you.
 
 === Receiving Arguments
 
@@ -74,21 +74,13 @@ error is raised.
 Arguments in `requires` are automatically added to `receives`, but no exception error is raised
 unless you actually use a `receives`.
 
-All of this validation can be overriden by sending the `:skip_validations` option when calling the
-command.
+All validations can be skipped by sending the `:skip_validations` option when calling the command.
 
 === Returning Arguments
 
-So now that your command runned, you may have ended with a result with a bunch of variables that
-you may actually not even need. If that's the case then you can use the `returns` method which as
-you might imagine cleans up the result by just adding the variables that you specified.
-
-=== Uses
-
-There's actually one last _limiter_ method. This one is a bit special since it doesn't really do
-anything to validate or clean your arguments. The only use of `uses` is to help your command not
-rely on method_missing as much. It's advised that you put the rest of the variables you use here
-but hey if you think that small performance boost if not worth it, I'm not going to force you.
+So now that your command ran, your result might end up with a bunch of variables that you may
+actually not even need. If that's the case then you can use the `returns` method which as you might
+imagine, cleans up the result by just returning the variables that you specified.
 
 === Limiters Examples
 
@@ -204,7 +196,7 @@ Up to this point the status may seem a bit bland... And you may be right!
 
 A status can tell you more than just a simple suceed and fail! It can tell you how it succeeded or
 how it failed. Doing this with failures is fairly easy, since anything that's not `:success` is
-considered a failure, but how do you we add more status as successes?
+considered a failure, but how do you we add more statuses as successes?
 
 [source,ruby]
 ----
@@ -246,6 +238,7 @@ end
 ----
 
 == Abort!
+
 Now let's imagine that at point in time you want stop running the command. Not necessarily because
 something went wrong, but you don't need to do anything more for the time being. What can you do?
 
@@ -303,8 +296,133 @@ ProcessCommand.call
 => #<SimpleCommand::Result @status: processed>
 ----
 
+== Getting Hooked
+
+A command also comes with your standard set of before, around and after hooks to tweak the command.
+The easiest way to understand them, it to see the order of execution of your command.
+
+[source,ruby]
+----
+# Rough representation of your typical call command
+def call
+  initialize_command
+  validate_args
+  before_hooks
+  around_hooks { call_command }
+  after_hooks
+  return_result
+end
+----
+
+Before going deeper into each kind of hook it's worth mentioning the behavior which all hooks share:
+
+- All hooks can be declared either using a block, a symbol to a method, or any object containing
+  code that can be _unzipped_ using `&object`. (Procs, lambdas, method objects)
+- Multiple hooks of the same kind can be declared, they will always be run from the first one that
+  was declared to the last one.
+- If you need a hook to be run at the begining, you can use the `prepend: true` option.
+- It might be obvious but worth noting that hooks are run in the command instance; as such you have
+  access to everything the command has.
+
+NOTE: Remember that calling `abort!` will stop the command on it's tracks and return the result
+immediately. This means that if you call `abort!` during `call`, after_hooks *WILL NOT* run.
+
+[source,ruby]
+----
+# Basic hook order
+before do
+  # I run first!
+  # If I wanted, I could abort the rest of the command from here!
+end
+
+before :my_hook
+
+lambda_from_somewhere_else = -> { "I run third!" }
+before lambda_from_somewhere_else
+
+private
+
+def my_hook
+  # I run second
+end
+----
+
+[source,ruby]
+----
+# More complicated hook behavior
+after :third do
+  # fourth
+end
+
+after :first, :second, prepend: true
+----
+
+IMPORTANT: Just because there's a lot of liberty with hook order it doesn't mean that its
+recommended to abuse it. Always try to keep the order of your hooks clear, and use `prepend` only
+if you *NEED* to.
+
+=== Before Hooks
+
+The most important thing to note of before hooks is that while indeed they're called before the
+command, they're also called *AFTER* the validations have run. This is important because it does
+mean that you if your command requires any arguments they can't be added through a before hook.
+
+While it was possible to make the before hooks run before the validations this decision was taken
+because `requires` and `receives` are meant to be *ARGUMENT* validators. This also means a couple of
+things:
+
+- Receives and requires become a way to tell the _users_ of your command how to use it properly
+- When a validator error is raised you always know it's because of the arguments you sent
+
+=== After Hooks
+
+After hooks are the easiest to understand. They run after your command was called, but before the
+result is created, so if you need to tweak your results a bit you can do it in here!
+
+=== Around Hooks
+
+Oh man, around hooks. It seems that every time I see an implementation of around hooks they work in
+a different way, so it's kinda hard to standarize them.
+
+Around hooks in a command are sadly no different, as they just try to make sense.
+
+First things first, when you use an around hook you must compromise to *ALWAYS* be able to receive
+an object and call it at some point in your method/block. If you don't, your command will never be
+called.
+
+Now, when there are multiple around hooks the first one will call the second one and so forth until
+the command is called. This means that before the `call` the code is run in the order the arounds
+were, but after the `call` it is run in the *REVERSE* order.
+
+Always keep this in mind.
+
+[source,ruby]
+----
+around do |next_step|
+  puts "First before call"
+  next_step.call
+  puts "First after call"
+end
+
+around do |next_step|
+  puts "Second before call"
+  next_step.call
+  puts "Second after call"
+end
+
+def call
+  puts "Command called"
+end
+
+# Would output:
+=> First before call
+=> Second before call
+=> Command called
+=> Second after call
+=> First after call
+----
+
 == Missing for v1.0
-- 0.2.0 Hooks
 - 0.3.0 Commander
 - 0.4.0 ?Config
 - ???

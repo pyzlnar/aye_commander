@@ -5,7 +5,7 @@ module AyeCommander
     # These methods are the ones that are included at a class level on every
     # command
     module ClassMethods
-      LIMITERS = %i(uses receives requires returns).freeze
+      LIMITERS = %i(receives requires returns).freeze
 
       # Contains all the limiters
       def limiters
@@ -28,12 +28,18 @@ module AyeCommander
       # #receives Tells the command which arguments are expected to be received
       # #requires Tells the command which arguments are actually required
       # #returns  Tells the command which arguments to return in the result
-      LIMITERS[1..-1].each do |limiter|
+      LIMITERS.each do |limiter|
         define_method(limiter) do |*args|
           return limiters[__method__] if args.empty?
           uses(*args)
           limiters[__method__] |= args
         end
+      end
+
+      # Helper method that tells the result class which methods to create as
+      # readers the first time it is created.
+      def readers
+        [:status] | uses
       end
 
       # Validates the limiter arguments
@@ -50,13 +56,13 @@ module AyeCommander
       # Validates the required arguments
       def validate_required_arguments(args)
         missing = requires - args.keys
-        raise AyeCommander::MissingRequiredArgumentError, missing if missing.any?
+        raise MissingRequiredArgumentError, missing if missing.any?
       end
 
       # Validates the received arguments
       def validate_received_arguments(args)
         extras = args.keys - (receives | requires)
-        raise AyeCommander::UnexpectedReceivedArgumentError, extras if extras.any?
+        raise UnexpectedReceivedArgumentError, extras if extras.any?
       end
     end
   end

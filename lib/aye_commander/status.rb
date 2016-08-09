@@ -2,11 +2,13 @@ module AyeCommander
   # This module helps Command and Result to be able to respond to various
   # status and status responses.
   module Status
+    DEFAULT = :success
+
     # Status related class Methods to be included
     module ClassMethods
       # Returns and/or initializes the :@succeeds class instance variable
       def succeeds
-        @succeeds ||= [:success]
+        @succeeds ||= [DEFAULT]
       end
 
       # Adds extra succeeds status other than success.
@@ -14,7 +16,7 @@ module AyeCommander
       # :success to be a successful status.
       def succeeds_with(*args, exclude_success: false)
         @succeeds = succeeds | args
-        @succeeds.delete(:success) if exclude_success
+        @succeeds.delete(DEFAULT) if exclude_success
       end
     end
 
