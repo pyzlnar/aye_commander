@@ -1,4 +1,5 @@
 module AyeCommander
+  # Handles initialize to instance variable in Command and Result
   module Initializable
     def initialize(**args)
       args.each do |name, value|
