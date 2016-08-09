@@ -5,14 +5,13 @@ module AyeCommander
     # These methods are the ones that are included at a class level on every
     # command
     module ClassMethods
-      LIMITERS = %i(uses receives requires returns).freeze
+      LIMITERS = %i(receives requires returns).freeze
 
       # Contains all the limiters
       def limiters
         @limiters ||= Hash.new([])
       end
 
-      # TODO Possibly remove uses
       # Helps the command define methods to not use method missing on every
       # instance.
       def uses(*args)
@@ -29,12 +28,18 @@ module AyeCommander
       # #receives Tells the command which arguments are expected to be received
       # #requires Tells the command which arguments are actually required
       # #returns  Tells the command which arguments to return in the result
-      LIMITERS[1..-1].each do |limiter|
+      LIMITERS.each do |limiter|
         define_method(limiter) do |*args|
           return limiters[__method__] if args.empty?
           uses(*args)
           limiters[__method__] |= args
         end
+      end
+
+      # Helper method that tells the result class which methods to create as
+      # readers the first time it is created.
+      def readers
+        [:status] | uses
       end
 
       # Validates the limiter arguments
