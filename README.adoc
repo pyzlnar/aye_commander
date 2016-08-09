@@ -82,13 +82,6 @@ So now that your command ran, your result might end up with a bunch of variables
 actually not even need. If that's the case then you can use the `returns` method which as you might
 imagine, cleans up the result by just returning the variables that you specified.
 
-=== Uses
-
-There's actually one last _limiter_ method. This one is a bit special since it doesn't really do
-anything to validate or clean your arguments. The only use of `uses` is to help your command not
-rely on method_missing as much. It's advised that you put the rest of the variables you use here
-but hey if you think that small performance boost if not worth it, I'm not going to force you.
-
 === Limiters Examples
 
 [source,ruby]
@@ -203,7 +196,7 @@ Up to this point the status may seem a bit bland... And you may be right!
 
 A status can tell you more than just a simple suceed and fail! It can tell you how it succeeded or
 how it failed. Doing this with failures is fairly easy, since anything that's not `:success` is
-considered a failure, but how do you we add more status as successes?
+considered a failure, but how do you we add more statuses as successes?
 
 [source,ruby]
 ----

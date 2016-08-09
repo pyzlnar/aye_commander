@@ -4,14 +4,32 @@ describe AyeCommander::Resultable::ClassMethods do
   let(:result_class) { command.result_class }
 
   context '.result' do
+    it 'returns the command if command option is specified' do
+      expect(command.result instance, :command).to eq instance
+    end
+
+    it 'calls and returns .new_result with the complete hash if true option is specified' do
+      expect(instance).to receive(:to_hash).and_return(:stubbed)
+      expect(command).to  receive(:new_result).with(:stubbed).and_return(:result)
+      expect(command.result instance, true).to eq :result
+    end
+
+    it 'calls and returns .new_result with the result hash if no option is specified' do
+      expect(instance).to receive(:to_result_hash).and_return(:stubbed)
+      expect(command).to  receive(:new_result).with(:stubbed).and_return(:result)
+      expect(command.result instance, false).to eq :result
+    end
+  end
+
+  context '.new_result' do
     let(:values) { { :@status => :success } }
 
     it 'returns an instance of the result class' do
-      expect(command.result(values)).to be_an_instance_of result_class
+      expect(command.new_result(values)).to be_an_instance_of result_class
     end
 
     it 'should contain the expected results' do
-      expect(command.result(values).to_hash).to eq values
+      expect(command.new_result(values).to_hash).to eq values
     end
   end
 
