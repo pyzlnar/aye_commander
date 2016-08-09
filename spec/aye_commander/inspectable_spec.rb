@@ -36,5 +36,11 @@ describe AyeCommander::Inspectable do
       result = { :@status => :success, :@other => :potato }
       expect(instance.to_result_hash).to eq result
     end
+
+    it 'assigns nil to the values that were not created when a result was specified' do
+      command.returns :badger
+      result = { :@status => :success, :@badger => nil }
+      expect(instance.to_result_hash).to eq result
+    end
   end
 end
