@@ -21,22 +21,14 @@ module AyeCommander
         # Define as much as possible whether it's used or not
         readers = [:status] | uses
 
-        # TODO Extract initializer into a module
         result = Class.new do
+          include Initializable
           include Inspectable
           include Status::Readable
           include Ivar::Readable
           extend  Ivar::ClassMethods
 
           attr_reader(*readers)
-
-          initialize = lambda do |variables = []|
-            variables.each do |name, value|
-              instance_variable_set name, value
-            end
-          end
-
-          define_method :initialize, initialize
         end
         const_set 'Result', result
       end

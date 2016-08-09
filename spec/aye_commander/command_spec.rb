@@ -31,7 +31,7 @@ describe AyeCommander::Command::ClassMethods do
 
     it 'calls .to_hash instead of .to_result_hash with :skip_cleanup' do
       allow(command).to receive(:new).and_return(instance)
-      expect(instance).to receive(:to_hash).and_return([])
+      expect(instance).to receive(:to_hash).and_return({})
       command.call(**args, skip_cleanup: true)
     end
   end
@@ -60,12 +60,6 @@ describe AyeCommander::Command do
     it 'sets the status to the first suceed if success has been excluded' do
       command.succeeds_with :potato, exclude_success: true
       expect(instance.status).to eq :potato
-    end
-
-    it 'sets the instance variables with the received arguments' do
-      i = command.new(taco: :burrito, dog: :hungry)
-      expect(i.taco).to eq :burrito
-      expect(i.dog ).to eq :hungry
     end
   end
 end

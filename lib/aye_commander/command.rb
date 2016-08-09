@@ -27,6 +27,7 @@ module AyeCommander
     end
 
     include Abortable
+    include Initializable
     include Inspectable
     include Ivar::Readable
     include Ivar::Writeable
@@ -37,17 +38,11 @@ module AyeCommander
     #
     # Status is set to the first of the suceeds status, which in most scenarios
     # will be :success
-    #
-    # Argument validation is then done to ensure that the received and required
-    # arguments have no inconsistencies.
     def initialize(**args)
-      @status = self.class.succeeds.first
-
-      args.each do |name, value|
-        instance_variable_set "@#{name}", value
-      end
+      super status: self.class.succeeds.first, **args
     end
 
+    # Empty call so all commands have one
     def call
     end
   end
