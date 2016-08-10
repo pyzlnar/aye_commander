@@ -316,11 +316,11 @@ end
 
 Before going deeper into each kind of hook it's worth mentioning the behavior which all hooks share:
 
-- All hooks can be declared either using a block, a symbol to a method, or any object containing
-  code that can be _unzipped_ using `&object`. (Procs, lambdas, method objects)
+- All hooks can be declared either using a block, a symbol, a proc or a lambda.
 - Multiple hooks of the same kind can be declared, they will always be run from the first one that
   was declared to the last one.
-- If you need a hook to be run at the begining, you can use the `prepend: true` option.
+- If you need a hook to be run before some that have already been declared, you can use the
+  `prepend: true` option.
 - It might be obvious but worth noting that hooks are run in the command instance; as such you have
   access to everything the command has.
 
@@ -424,5 +424,4 @@ end
 
 == Missing for v1.0
 - 0.3.0 Commander
-- 0.4.0 ?Config
 - ???
