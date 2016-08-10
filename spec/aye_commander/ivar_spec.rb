@@ -15,6 +15,36 @@ describe AyeCommander::Ivar::ClassMethods do
       expect(result).to_not respond_to :taco=
     end
   end
+
+  context '.to_ivar' do
+    it 'returns itself when the name is already in ivar form' do
+      expect(command.to_ivar :@var).to eq :@var
+    end
+
+    it 'returns the ivar form when name is not in ivar form' do
+      expect(command.to_ivar :var).to eq :@var
+    end
+
+    it 'is able to handle strings' do
+      expect(command.to_ivar '@var').to eq :@var
+      expect(command.to_ivar 'var').to  eq :@var
+    end
+  end
+
+  context '.to_nvar' do
+    it 'returns itself when name is already in nvar form' do
+      expect(command.to_nvar :var).to eq :var
+    end
+
+    it 'returns the nvar form when name is not in nvar form' do
+      expect(command.to_nvar :@var).to eq :var
+    end
+
+    it 'is able to handle strings' do
+      expect(command.to_nvar '@var').to eq :var
+      expect(command.to_nvar 'var').to  eq :var
+    end
+  end
 end
 
 describe AyeCommander::Ivar::Readable do
@@ -35,6 +65,27 @@ describe AyeCommander::Ivar::Readable do
       expect(command).to receive(:define_missing_reader).with(:taco)
       instance.instance_variable_set :@taco, :badger
       instance.taco
+    end
+
+    context '#remove!' do
+      it 'removes an instance variable' do
+        instance.remove!(:status)
+        expect(instance.instance_variables).to be_empty
+      end
+    end
+
+    context '#to_ivar' do
+      it 'calls the .to_ivar' do
+        expect(command).to receive(:to_ivar).with(:var)
+        instance.to_ivar(:var)
+      end
+    end
+
+    context '#to_nvar' do
+      it 'calls the .to_nvar' do
+        expect(command).to receive(:to_nvar).with(:var)
+        instance.to_nvar(:var)
+      end
     end
   end
 
