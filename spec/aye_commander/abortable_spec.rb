@@ -18,7 +18,7 @@ describe AyeCommander::Abortable do
 
   context '#abort' do
     it 'throws with :abort! symbol' do
-      expect(instance).to receive(:throw).with(:abort!)
+      expect(instance).to receive(:throw).with(:abort!, true)
       instance.abort!
     end
   end

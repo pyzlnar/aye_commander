@@ -17,11 +17,12 @@ module AyeCommander
       def call(skip_cleanup: false, **args)
         command = new(args)
         validate_arguments(args)
-        abortable do
+        aborted = abortable do
           call_before_hooks(command)
           around_hooks.any? ? call_around_hooks(command) : command.call
           call_after_hooks(command)
         end
+        abortable { call_aborted_hooks(command) } if aborted
         result(command, skip_cleanup)
       end
     end

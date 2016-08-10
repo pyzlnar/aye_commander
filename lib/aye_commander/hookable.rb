@@ -2,7 +2,7 @@ module AyeCommander
   module Hookable
     # Hooks allow to run something, before, around and after the command runs.
     module ClassMethods
-      TYPES = %i(before around after).freeze
+      TYPES = %i(before around after aborted).freeze
 
       TYPES.each do |kind|
         # Defines .before .around and .after
