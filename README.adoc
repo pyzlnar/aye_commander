@@ -299,7 +299,8 @@ ProcessCommand.call
 == Getting Hooked
 
 A command also comes with your standard set of before, around and after hooks to tweak the command.
-The easiest way to understand them, it to see the order of execution of your command.
+Additionaly commands come bundled with a fourth kind of hook, the aborted hook.  The easiest way to
+understand them, it to see the order of execution of a command.
 
 [source,ruby]
 ----
@@ -310,6 +311,7 @@ def call
   before_hooks
   around_hooks { call_command }
   after_hooks
+  aborted_hooks if aborted
   return_result
 end
 ----
@@ -323,9 +325,6 @@ Before going deeper into each kind of hook it's worth mentioning the behavior wh
   `prepend: true` option.
 - It might be obvious but worth noting that hooks are run in the command instance; as such you have
   access to everything the command has.
-
-NOTE: Remember that calling `abort!` will stop the command on it's tracks and return the result
-immediately. This means that if you call `abort!` during `call`, after_hooks *WILL NOT* run.
 
 [source,ruby]
 ----
@@ -378,6 +377,13 @@ things:
 
 After hooks are the easiest to understand. They run after your command was called, but before the
 result is created, so if you need to tweak your results a bit you can do it in here!
+
+=== Aborted Hooks
+
+As you might imagine, these hooks are only run if you abort the command. Why do we need them in the
+first place? Well as you may remember, calling `abort!` will stop the command on its tracks and
+return the result immediately. This means that if you call `abort!` during `call`, after_hooks
+*WILL NOT* run. For these cases, you might want to use an abort hook instead.
 
 === Around Hooks
 

@@ -13,11 +13,18 @@ describe AyeCommander::Command::ClassMethods do
       command.call(args)
     end
 
+    it 'runs the aborted hooks if command was aborted' do
+      allow(command).to  receive(:call_before_hooks){ throw :abort!, true }
+      expect(command).to receive(:call_aborted_hooks)
+      command.call(args)
+    end
+
     it 'calls several methods in the abortable block' do
       allow(command).to   receive(:new).and_return(instance)
       expect(command).to  receive(:call_before_hooks)
       expect(instance).to receive(:call)
       expect(command).to  receive(:call_after_hooks)
+      expect(command).to_not receive(:call_aborted_hooks)
       command.call(args)
     end
 
