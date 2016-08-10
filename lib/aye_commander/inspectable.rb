@@ -13,7 +13,7 @@ module AyeCommander
     # Returns a hash of the specified instance_variables, default all
     def to_hash(limit = instance_variables)
       limit.each_with_object({}) do |iv, hash|
-        ivn = iv[0] == '@' ? iv : "@#{iv}".to_sym
+        ivn = to_ivar(iv)
         hash[ivn] = instance_variable_get(ivn)
         hash
       end
