@@ -1,9 +1,13 @@
 module AyeCommander
   # This is the meat of AyeComander, what you will include in your commands.
   module Command
-    def self.included(includer)
-      includer.extend ClassMethods
-    end
+    include Abortable
+    include Initializable
+    include Inspectable
+    include Ivar::Readable
+    include Ivar::Writeable
+    include Status::Readable
+    include Status::Writeable
 
     # Class Methods to be extended to the includer
     module ClassMethods
@@ -12,8 +16,10 @@ module AyeCommander
       include Ivar::ClassMethods
       include Limitable::ClassMethods
       include Resultable::ClassMethods
+      include Shareable::ClassMethods
       include Status::ClassMethods
 
+      # This method is what the user calls to run their command
       def call(skip_cleanup: false, **args)
         command = new(args)
         validate_arguments(args)
@@ -27,13 +33,7 @@ module AyeCommander
       end
     end
 
-    include Abortable
-    include Initializable
-    include Inspectable
-    include Ivar::Readable
-    include Ivar::Writeable
-    include Status::Readable
-    include Status::Writeable
+    extend ClassMethods
 
     # Initializes the command with the correct setup
     #

@@ -41,16 +41,6 @@ describe AyeCommander::Command do
   let(:command)  { Class.new.send(:include, AyeCommander::Command) }
   let(:instance) { command.new }
 
-  context 'when included' do
-    it 'should add the class methods to the includer' do
-      expect(command.singleton_class).to include AyeCommander::Command::ClassMethods
-    end
-
-    it 'should add the instance methods to the includer' do
-      expect(command).to include AyeCommander::Command
-    end
-  end
-
   context '#initialize' do
     it 'sets the status to :success if no other succeed has been set' do
       command.succeeds_with :potato
