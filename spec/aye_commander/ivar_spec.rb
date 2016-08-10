@@ -66,26 +66,27 @@ describe AyeCommander::Ivar::Readable do
       instance.instance_variable_set :@taco, :badger
       instance.taco
     end
+  end
 
-    context '#remove!' do
-      it 'removes an instance variable' do
-        instance.remove!(:status)
-        expect(instance.instance_variables).to be_empty
-      end
+  context '#remove!' do
+    it 'removes an instance variable' do
+      instance.remove!(:status)
+      expect(instance.instance_variables).to be_empty
     end
+  end
 
-    context '#to_ivar' do
-      it 'calls the .to_ivar' do
-        expect(command).to receive(:to_ivar).with(:var)
-        instance.to_ivar(:var)
-      end
+  context '#to_ivar' do
+    it 'calls the .to_ivar' do
+      instance
+      expect(command).to receive(:to_ivar).with(:var)
+      instance.to_ivar(:var)
     end
+  end
 
-    context '#to_nvar' do
-      it 'calls the .to_nvar' do
-        expect(command).to receive(:to_nvar).with(:var)
-        instance.to_nvar(:var)
-      end
+  context '#to_nvar' do
+    it 'calls the .to_nvar' do
+      expect(command).to receive(:to_nvar).with(:var)
+      instance.to_nvar(:var)
     end
   end
 
