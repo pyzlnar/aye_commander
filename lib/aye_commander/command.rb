@@ -16,6 +16,7 @@ module AyeCommander
       include Ivar::ClassMethods
       include Limitable::ClassMethods
       include Resultable::ClassMethods
+      include Shareable::ClassMethods
       include Status::ClassMethods
 
       # This method is what the user calls to run their command
@@ -29,12 +30,6 @@ module AyeCommander
         end
         abortable { call_aborted_hooks(command) } if aborted
         result(command, skip_cleanup)
-      end
-
-      # This ensures that class methods are extended when Command is included
-      def included(includer)
-        super
-        includer.extend ClassMethods
       end
     end
 
