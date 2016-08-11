@@ -3,8 +3,8 @@ module AyeCommander
   # succession. At the end it returns its own result containing a hash with
   # the commands run.
   module Commander
-    # The only new functionality bundled with the Commander is the class method
-    # execute, which can be used to automatically execute a series of commands
+    # Eventhough the Commander is basically a Command, it does come with some
+    # minor tweaking to keep it simple to understand and consistant
     module ClassMethods
       # This ensure that Commander specific class methods are included when
       # Commander is included
@@ -21,6 +21,38 @@ module AyeCommander
         inheriter.instance_variable_set :@executes, @executes
       end
 
+      # Override of Command.call
+      # It's almost identical to a normal command call, the only difference
+      # being that it has to prepare the commander result before sending it.
+      #
+      # This was previously done through hooks, but the idea was scrapped to
+      # avoid inconsistencies with the command instance variable during after
+      # and aborted hooks
+      def call(skip_cleanup: false, **args)
+        commander = super(skip_cleanup: :command, **args)
+        prepare_commander_result(commander)
+        result(commander, skip_cleanup)
+      end
+
+      # This method is always run before retuning the result of the commander
+      # It basically removes command instance variable since it's only relevant
+      # during the execution of the commander itself.
+      # It also assigns the ivars of the last executed command to itself.
+      def prepare_commander_result(commander)
+        commander.instance_exec do
+          command.to_hash.each do |name, value|
+            instance_variable_set to_ivar(name), value
+          end
+          remove!(:command)
+        end
+      end
+
+      # This returns an anonymous command class to be used to initialize the
+      # received commander args.
+      def command
+        @command ||= Class.new.send(:include, Command)
+      end
+
       # Adds the received arguments to the executes array
       def execute(*args)
         executes.concat(args)
@@ -35,27 +67,12 @@ module AyeCommander
     include Command
     extend ClassMethods
 
-    # This lambda is run either if the Commander ends successfully or aborts
-    # It basically removes the received and command instance variables since
-    # they're only relevand during the execution of the commander and assigns
-    # the ivars of the last command executed to itself.
-    prepare_result = lambda do
-      abort! unless command
-      command.to_hash.each do |name, value|
-        instance_variable_set to_ivar(name), value
-      end
-      remove!(:received)
-      remove!(:command)
-    end
-    after   prepare_result
-    aborted prepare_result
-
     # A commander works with the following instance variables:
-    # received: The original received args by the commander
-    # command:  The last executed command. Will be nil at the beginning
+    # command:  The last executed command. Will be an anonymous empty command at
+    #           the beginning
     # executed: An array containing the executed commands
     def initialize(**args)
-      super(received: args, command: nil, executed: [])
+      super(command: self.class.command.new(args), executed: [])
     end
 
     # This is the default call for a commander
@@ -75,7 +92,7 @@ module AyeCommander
     # It also comes with an option to to abort the Commander in case the command
     # that was run failed.
     def execute(command_class, abort_on_fail: false)
-      args = command ? command.to_hash : received
+      args = command.to_hash
       @command = command_class.call(**args, skip_cleanup: :command)
       executed.push(command)
 

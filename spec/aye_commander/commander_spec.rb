@@ -36,6 +36,36 @@ describe AyeCommander::Commander::ClassMethods do
     end
   end
 
+  context '.call' do
+    it 'calls several methods' do
+      expect(commander).to receive(:prepare_commander_result)
+      expect(commander).to receive(:result).twice
+      commander.call
+    end
+  end
+
+  context '.prepare_commander_result' do
+    it 'cleans up the commander after being called' do
+      commander.execute(command)
+      result = commander.call(taco: :bell)
+      expect(result.instance_variables).to include :@status
+      expect(result.instance_variables).to include :@executed
+      expect(result.instance_variables).to include :@taco
+      expect(result.instance_variables).to_not include :@command
+    end
+  end
+
+  context '.command' do
+    it 'gives an anonymous class that includes Command' do
+      expect(commander.command).to be_instance_of Class
+      expect(commander.command).to include AyeCommander::Command
+    end
+
+    it 'always returns the same one per commander' do
+      expect(commander.command.object_id).to eq commander.command.object_id
+    end
+  end
+
   context '.execute' do
     it 'adds the received arguments to the executes array' do
       commander.execute :taco, :burrito
@@ -53,25 +83,6 @@ describe AyeCommander::Commander::ClassMethods do
       expect(commander.executes).to eq :random
     end
   end
-
-  context 'hooks' do
-    it 'has an after hook by default' do
-      expect(commander.after_hooks).to_not be_empty
-    end
-
-    it 'has an aborted hook by default' do
-      expect(commander.aborted_hooks).to_not be_empty
-    end
-
-    it 'cleans up the commander after being called' do
-      commander.execute(command)
-      result = commander.call(taco: :bell)
-      expect(result.instance_variables).to include :@status
-      expect(result.instance_variables).to include :@taco
-      expect(result.instance_variables).to_not include :@received
-      expect(result.instance_variables).to_not include :@command
-    end
-  end
 end
 
 describe AyeCommander::Commander do
@@ -83,8 +94,7 @@ describe AyeCommander::Commander do
   context '#initialize' do
     it 'initializes the commander with the required variables' do
       ci = commander.new(taco: :potato)
-      expect(ci.received).to eq taco: :potato
-      expect(ci.command).to be_nil
+      expect(ci.command).to be_instance_of commander.command
       expect(ci.executed).to eq []
     end
   end
@@ -102,14 +112,8 @@ describe AyeCommander::Commander do
       commander.class_eval { public :execute }
     end
 
-    it 'calls the command with args if no other has been executed' do
-      expect(command).to receive(:call).with(skip_cleanup: :command).and_return(commandi)
-      instance.execute(command)
-    end
-
-    it 'calls the command the previous result if a command was already run' do
-      expect(command).to receive(:call).with(:@status => :success, :skip_cleanup => :command).and_return(commandi)
-      instance.command = commandi
+    it 'calls the command with the result of the previous command' do
+      expect(instance.command).to receive(:to_hash).and_return(hello: :world)
       instance.execute(command)
     end
 
