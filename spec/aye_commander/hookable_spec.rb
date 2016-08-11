@@ -2,11 +2,13 @@ describe AyeCommander::Hookable::ClassMethods do
   let(:command)  { Class.new.send(:include, AyeCommander::Command) }
   let(:instance) { command.new }
 
-  %i(before around after).each do |kind|
+  %i(before around after aborted).each do |kind|
     context ".#{kind}" do
       it "adds the args to the #{kind} hooks array" do
         command.send kind, :some, :method
-        expect(command.before_hooks).to eq [:some, :method]
+        expect(command.send("#{kind}_hooks")).to eq [:some, :method]
+        expect(command.instance_variable_get :@hooks).to_not be_empty
+        expect(command.instance_variable_get(:@hooks).default).to be_empty
       end
 
       it 'adds the received block as a block, after the args' do
@@ -40,7 +42,7 @@ describe AyeCommander::Hookable::ClassMethods do
     end
   end
 
-  %i(before after).each do |kind|
+  %i(before after aborted).each do |kind|
     context ".call_#{kind}_hooks" do
       before :each do
         body = -> { success? }

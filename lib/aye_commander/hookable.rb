@@ -2,27 +2,28 @@ module AyeCommander
   module Hookable
     # Hooks allow to run something, before, around and after the command runs.
     module ClassMethods
-      TYPES = %i(before around after).freeze
+      TYPES = %i(before around after aborted).freeze
 
       TYPES.each do |kind|
-        # Defines .before .around and .after
+        # Defines .before .around .after and .aborted
         # Each simply save the hooks in an array.
         define_method kind do |*args, prepend: false, &block|
           args.push block if block
           if prepend
-            hooks[kind].unshift(*args)
+            hooks[kind] = args + hooks[kind]
           else
-            hooks[kind].concat(args)
+            hooks[kind] += args
           end
         end
 
-        # Defines .before_hooks .around_hooks and .after_hooks
+        # Defines .before_hooks .around_hooks .after_hooks and .aborted_hooks
         # Public interface in case the user wants to see their defined hooks
         define_method "#{kind}_hooks" do
           hooks[kind]
         end
 
-        # Defines .call_before_hooks .call_around_hooks and .call_after_hooks
+        # Defines .call_before_hooks .call_around_hooks .call_after_hooks and
+        # .call_aborted_hooks
         # Calls the hooks one by one
         define_method "call_#{kind}_hooks" do |command|
           prepare_hooks(kind, command).each(&:call)

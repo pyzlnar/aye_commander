@@ -11,7 +11,7 @@ module AyeCommander
 
     # Throws an :abort! to stop the current command flow
     def abort!
-      throw :abort!
+      throw :abort!, :aborted
     end
   end
 end
