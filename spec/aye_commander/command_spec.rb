@@ -1,55 +1,28 @@
-describe AyeCommander::Command::ClassMethods do
-  let(:command)  { Class.new.send(:include, AyeCommander::Command) }
-  let(:instance) { command.new }
-
-  context '.call' do
-    let(:args) { { some: :other, irrelevant: :args } }
-
-    it 'calls several methods in a specific order' do
-      expect(command).to  receive(:new).with(args).and_return(instance)
-      expect(command).to  receive(:validate_arguments).with(args)
-      expect(command).to  receive(:abortable)
-      expect(command).to  receive(:result).with(instance, false)
-      command.call(args)
-    end
-
-    it 'runs the aborted hooks if command was aborted' do
-      allow(command).to  receive(:call_before_hooks){ throw :abort!, true }
-      expect(command).to receive(:call_aborted_hooks)
-      command.call(args)
-    end
-
-    it 'calls several methods in the abortable block' do
-      allow(command).to   receive(:new).and_return(instance)
-      expect(command).to  receive(:call_before_hooks)
-      expect(instance).to receive(:call)
-      expect(command).to  receive(:call_after_hooks)
-      expect(command).to_not receive(:call_aborted_hooks)
-      command.call(args)
-    end
-
-    it 'calls around hooks only if they exist' do
-      command.around { :something }
-      allow(command).to  receive(:new).and_return(instance)
-      expect(command).to receive(:call_around_hooks)
-      command.call(args)
-    end
-  end
-end
-
 describe AyeCommander::Command do
-  let(:command)  { Class.new.send(:include, AyeCommander::Command) }
-  let(:instance) { command.new }
+  let(:command)   { Class.new.send(:include, AyeCommander::Command) }
+  let(:commandsc) { command.singleton_class }
 
-  context '#initialize' do
-    it 'sets the status to :success if no other succeed has been set' do
-      command.succeeds_with :potato
-      expect(instance.status).to eq :success
+  context 'a command' do
+    it 'includes the necessary instance modules' do
+      expect(command).to include AyeCommander::Abortable
+      expect(command).to include AyeCommander::Callable
+      expect(command).to include AyeCommander::Initializable
+      expect(command).to include AyeCommander::Inspectable
+      expect(command).to include AyeCommander::Ivar::Readable
+      expect(command).to include AyeCommander::Ivar::Writeable
+      expect(command).to include AyeCommander::Status::Readable
+      expect(command).to include AyeCommander::Status::Writeable
     end
 
-    it 'sets the status to the first suceed if success has been excluded' do
-      command.succeeds_with :potato, exclude_success: true
-      expect(instance.status).to eq :potato
+    it 'includes the necessary class modules' do
+      expect(commandsc).to include AyeCommander::Abortable::ClassMethods
+      expect(commandsc).to include AyeCommander::Callable::ClassMethods
+      expect(commandsc).to include AyeCommander::Hookable::ClassMethods
+      expect(commandsc).to include AyeCommander::Ivar::ClassMethods
+      expect(commandsc).to include AyeCommander::Limitable::ClassMethods
+      expect(commandsc).to include AyeCommander::Resultable::ClassMethods
+      expect(commandsc).to include AyeCommander::Shareable::ClassMethods
+      expect(commandsc).to include AyeCommander::Status::ClassMethods
     end
   end
 end

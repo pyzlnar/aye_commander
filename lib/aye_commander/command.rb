@@ -1,50 +1,30 @@
 module AyeCommander
-  # This is the meat of AyeComander, what you will include in your commands.
+  # This is the meat of AyeComander, what the user has to include in his own
+  # commands for everything to work.
   module Command
-    include Abortable
-    include Initializable
-    include Inspectable
-    include Ivar::Readable
-    include Ivar::Writeable
-    include Status::Readable
-    include Status::Writeable
-
-    # Class Methods to be extended to the includer
+    # Class Methods that define the functionality of a command.
+    # The most complex functionality is in fact contained at class level since
+    # most I wanted to preserve the commands as clean as possible to avoid
+    # name clases or similar.
     module ClassMethods
       include Abortable::ClassMethods
+      include Callable::ClassMethods
       include Hookable::ClassMethods
       include Ivar::ClassMethods
       include Limitable::ClassMethods
       include Resultable::ClassMethods
       include Shareable::ClassMethods
       include Status::ClassMethods
-
-      # This method is what the user calls to run their command
-      def call(skip_cleanup: false, **args)
-        command = new(args)
-        validate_arguments(args)
-        aborted = abortable do
-          call_before_hooks(command)
-          around_hooks.any? ? call_around_hooks(command) : command.call
-          call_after_hooks(command)
-        end
-        abortable { call_aborted_hooks(command) } if aborted
-        result(command, skip_cleanup)
-      end
     end
 
+    include Abortable
+    include Callable
+    include Initializable
+    include Inspectable
+    include Ivar::Readable
+    include Ivar::Writeable
+    include Status::Readable
+    include Status::Writeable
     extend ClassMethods
-
-    # Initializes the command with the correct setup
-    #
-    # Status is set to the first of the suceeds status, which in most scenarios
-    # will be :success
-    def initialize(**args)
-      super status: self.class.succeeds.first, **args
-    end
-
-    # Empty call so all commands have one
-    def call
-    end
   end
 end
