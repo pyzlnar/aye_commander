@@ -12,6 +12,7 @@ module AyeCommander
         super
         includer.extend ClassMethods
         includer.instance_variable_set :@executes, @executes
+        includer.instance_variable_set :@abort_on_failure, @abort_on_failure
       end
 
       # This ensures that the executes instance variable is available for
@@ -19,6 +20,7 @@ module AyeCommander
       def inherited(inheriter)
         super
         inheriter.instance_variable_set :@executes, @executes
+        inheriter.instance_variable_set :@abort_on_failure, @abort_on_failure
       end
 
       # Override of Command.call
@@ -62,6 +64,17 @@ module AyeCommander
       def executes
         @executes ||= []
       end
+
+      # Can be used to set a default behaviour of a Commander that overwrites
+      # call.
+      def abort_on_failure(value = true)
+        @abort_on_failure = value
+      end
+
+      # Returns the abort_on_failure variable
+      def abort_on_failure?
+        @abort_on_failure
+      end
     end
 
     include Command
@@ -80,25 +93,27 @@ module AyeCommander
     # This however can be overwritten by the user and define their own logic
     # to execute different commands
     def call
-      self.class.executes.each do |command_class|
-        execute(command_class, abort_on_fail: true)
-      end
+      execute(*self.class.executes, abort_on_failure: true)
     end
 
     private
 
-    # Execute will run the command received, saved said command in the @command
-    # instance variable and as well push it to the executed array.
-    # It also comes with an option to to abort the Commander in case the command
-    # that was run failed.
-    def execute(command_class, abort_on_fail: false)
-      args = command.to_hash
-      @command = command_class.call(**args, skip_cleanup: :command)
-      executed.push(command)
+    # Execute will run the commands received, save the last executed command in
+    # @command instance variable and push it to the executed array.
+    #
+    # It also comes with an option to to abort the Commander in case one of the
+    # command run fails.
+    def execute(*commands, abort_on_failure: self.class.abort_on_failure?)
+      commands.each do |command_class|
+        args = command.to_hash
+        @command = command_class.call(**args, skip_cleanup: :command)
+        executed.push(command)
 
-      return unless command.failure? && abort_on_fail
-      fail!
-      abort!
+        if command.failure? && abort_on_failure
+          fail!
+          abort!
+        end
+      end
     end
   end
 end

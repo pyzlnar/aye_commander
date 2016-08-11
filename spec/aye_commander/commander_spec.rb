@@ -83,6 +83,26 @@ describe AyeCommander::Commander::ClassMethods do
       expect(commander.executes).to eq :random
     end
   end
+
+  context '.abort_on_failure' do
+    it 'sets the @abort_on_failure to true when called without arguments' do
+      commander.abort_on_failure
+      expect(commander.instance_variable_get :@abort_on_failure).to be true
+    end
+
+    it 'sets the @abort_on_failure to the received argument' do
+      commander.abort_on_failure false
+      expect(commander.instance_variable_get :@abort_on_failure).to be false
+    end
+  end
+
+  context '.abort_on_failure?' do
+    it 'returns @abort_on_failure' do
+      expect(commander.abort_on_failure?).to be_nil
+      commander.abort_on_failure true
+      expect(commander.abort_on_failure?).to be true
+    end
+  end
 end
 
 describe AyeCommander::Commander do
@@ -102,7 +122,7 @@ describe AyeCommander::Commander do
   context '#call' do
     it 'executes the comamnds in the order they were received' do
       commander.execute(1, 1, 1)
-      expect(instance).to receive(:execute).with(1, abort_on_fail: true).exactly(3).times
+      expect(instance).to receive(:execute).with(1, 1, 1, abort_on_failure: true)
       instance.call
     end
   end
@@ -129,16 +149,16 @@ describe AyeCommander::Commander do
       expect(instance.executed).to eq [commandi]
     end
 
-    it 'calls fail! and abort! if command fails and with abort_on_fail option' do
+    it 'calls fail! and abort! if command fails and with abort_on_failure option' do
       allow(command).to receive(:call).and_return(commandi)
       commandi.fail!
 
       expect(instance).to receive(:fail!)
       expect(instance).to receive(:abort!)
-      instance.execute(command, abort_on_fail: true)
+      instance.execute(command, abort_on_failure: true)
     end
 
-    it 'doesnt calls fail! and abort! even if command fails and without abort_on_fail option' do
+    it 'doesnt calls fail! and abort! even if command fails and without abort_on_failure option' do
       allow(command).to receive(:call).and_return(commandi)
       commandi.fail!
 
@@ -147,12 +167,12 @@ describe AyeCommander::Commander do
       instance.execute(command)
     end
 
-    it 'doesnt calls fail! and abort! if command succeeds even with abort_on_fail option' do
+    it 'doesnt calls fail! and abort! if command succeeds even with abort_on_failure option' do
       allow(command).to receive(:call).and_return(commandi)
 
       expect(instance).to_not receive(:fail!)
       expect(instance).to_not receive(:abort!)
-      instance.execute(command, abort_on_fail: true)
+      instance.execute(command, abort_on_failure: true)
     end
   end
 end
