@@ -428,6 +428,170 @@ end
 => First after call
 ----
 
+== Aye Aye Commander!
+
+I've been waiting this whole README to write that.
+
+A commander is actually a command which task is to run other commands. There are two ways to do this
+so lets start with the simpler one.
+
+=== Run and Done
+
+Similarly to the command, on its simplest form you only need to do two things to use a commander.
+
+- Include `AyeCommander::Commander`, not `AyeCommander::Command`
+- Use `execute` with the `Command` s you want to be runned.
+
+Calling the commander will run the commands one by one... and that's pretty much it.
+
+[source,ruby]
+----
+class Palpetine
+  include AyeCommander::Commander
+  execute HelpRepublic, Order66, BuildEmpire
+end
+
+Palpetine.call
+=> #<Palpetine::Result @status: success, @executed: [#<HelpRepublic @status: success>, #<Order66 @status: success>, #<BuildEmpire @status: success>]>
+----
+
+==== Commander Result
+
+As you may have noticed, the commander result not only includes a status, but also an array with
+the instances of the command that were run. Handy!
+
+The commander result will not only contain this set of variables; at the end it will take all the
+variables that were present on the last executed command. Which brings us to an important point:
+commands run by the commander *ALWAYS* skip both cleanup and receives validations (requires are
+still run).
+
+This is done so that the complete set of variable is sent to the next command to be run. If you want
+to cleanup the commander, you must declare its own set of returns.
+
+[source,ruby]
+----
+class BadgerCommand
+  include AyeCommander::Command
+  returns :badger
+end
+
+class TheCommander
+  include AyeCommander::Commander
+end
+
+# Notice how the command returns is ignored
+TheCommander.call(extra: :params)
+=> #<TheCommander::Result @status: success, @executed: [...], @extra: params>
+
+class TheCommander
+  returns :extra
+end
+
+# With returns defined, commander now cleans up the result
+TheCommander.call(extra: :params)
+=> #<TheCommander::Result @status: success, @extra: params>
+----
+
+==== Aborting and Failing
+
+So what happens when the command we're running aborts? Absolutely Nothing! Remember that we can
+abort! on success, so a commander doesn't really cares.
+
+On the other hand if the command we're running *fails* the commander itself will fail and abort.
+
+[source,ruby]
+----
+class Palpetine
+  include AyeCommander::Commander
+  execute HelpRepublic, Order66, BuildEmpire
+end
+
+# If Order66 were to fail
+Palpetine.call
+=> #<Palpetine::Result @status: failure, @executed: [#<HelpRepublic @status: success>, #<Order66 @status: jedi_escaped>]>
+----
+
+=== When we need more tweaking
+
+Now, while executing several commands in a row is nice, sometimes you need a bit more of control on
+when to run command A or B.
+
+Don't worry, AyeCommander has you covered!
+The only thing you need to do is define your own call method!
+
+[source,ruby]
+----
+class PickyCommander
+  include AyeCommander::Commander
+
+  def call
+    execute FirstCommand
+
+    if command.failure?
+      execute ThisCommand, ThatCommand
+    else
+      execute AnotherCommand
+    end
+  end
+end
+----
+
+There are a couple of things that we must notice here.
+
+First of all, the `command` instance variable. This variable will always have the last command that
+was executed. If no command has been run yet, it will have an anonymous command instance to which
+you can add extras for the following commands to run.
+
+[source,ruby]
+----
+before do
+  command.extra_arg = 'This extra arg'
+end
+
+after do
+  command.some_other = 'This' if command.that.blank?
+end
+
+def call
+  # Command instance will have extra_arg available
+  execute Command
+  # Commander Result will have some_other if that is blank after running Command
+end
+----
+
+IMPORTANT: The `command` variable is available for *BOTH* kinds of commanders, so you can use it to
+prepare and finalize your commander. This marks the biggest difference between a `Commander` and a
+`Command`. While everything in a command operates on it's own instance, a commander operates over
+the instance of the commands it executes.
+
+The second thing to notice is that as opposed to their simple counterpart, the commander *DOES NOT*
+abort nor fail when one of the commands you run fails. This is done so you can tweak the behavior
+of the commander to your necessities, however recognizing that it is quite likely that you want
+that behaviour for your commander there are ways to reenable it.
+
+[source,ruby]
+----
+class UndecisiveCommander
+  include AyeCommander::Commander
+
+  # Using this will re-enable failing on all commands
+  abort_on_failure
+
+  def call
+    # But even with that option, you override it at an instance level
+
+    # Will always abort on failure
+    execute ThisCommand, abort_on_failure: true
+
+    # Will never abort on failure
+    execute ThatCommand, OtherCommand, abort_on_failure: false
+  end
+end
+----
+
 == Missing for v1.0
-- 0.3.0 Commander
-- ???
+
+- Complete Readme
+- Last Codecheckup!
+- Actual documentation
+- Rereview tests
