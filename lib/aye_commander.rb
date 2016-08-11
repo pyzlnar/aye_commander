@@ -1,4 +1,5 @@
 require 'aye_commander/abortable'
+require 'aye_commander/callable'
 require 'aye_commander/hookable'
 require 'aye_commander/initializable'
 require 'aye_commander/inspectable'

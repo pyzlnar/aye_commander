@@ -2,6 +2,7 @@ module AyeCommander
   # This is the meat of AyeComander, what you will include in your commands.
   module Command
     include Abortable
+    include Callable
     include Initializable
     include Inspectable
     include Ivar::Readable
@@ -12,27 +13,14 @@ module AyeCommander
     # Class Methods to be extended to the includer
     module ClassMethods
       include Abortable::ClassMethods
+      include Callable::ClassMethods
       include Hookable::ClassMethods
       include Ivar::ClassMethods
       include Limitable::ClassMethods
       include Resultable::ClassMethods
       include Shareable::ClassMethods
       include Status::ClassMethods
-
-      # This method is what the user calls to run their command
-      def call(skip_cleanup: false, **args)
-        command = new(args)
-        validate_arguments(args)
-        aborted = abortable do
-          call_before_hooks(command)
-          around_hooks.any? ? call_around_hooks(command) : command.call
-          call_after_hooks(command)
-        end
-        abortable { call_aborted_hooks(command) } if aborted
-        result(command, skip_cleanup)
-      end
     end
-
     extend ClassMethods
 
     # Initializes the command with the correct setup
@@ -41,10 +29,6 @@ module AyeCommander
     # will be :success
     def initialize(**args)
       super status: self.class.succeeds.first, **args
-    end
-
-    # Empty call so all commands have one
-    def call
     end
   end
 end
