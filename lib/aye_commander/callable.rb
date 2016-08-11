@@ -27,7 +27,7 @@ module AyeCommander
           around_hooks.any? ? call_around_hooks(command) : command.call
           call_after_hooks(command)
         end
-        abortable { call_aborted_hooks(command) } if aborted
+        abortable { call_aborted_hooks(command) } if aborted == :aborted
         result(command, skip_cleanup)
       end
     end

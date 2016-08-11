@@ -14,7 +14,7 @@ describe AyeCommander::Callable::ClassMethods do
     end
 
     it 'runs the aborted hooks if command was aborted' do
-      allow(command).to  receive(:call_before_hooks){ throw :abort!, true }
+      allow(command).to  receive(:call_before_hooks){ throw :abort!, :aborted }
       expect(command).to receive(:call_aborted_hooks)
       command.call(args)
     end
