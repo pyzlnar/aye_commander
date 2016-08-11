@@ -22,13 +22,5 @@ module AyeCommander
       include Status::ClassMethods
     end
     extend ClassMethods
-
-    # Initializes the command with the correct setup
-    #
-    # Status is set to the first of the suceeds status, which in most scenarios
-    # will be :success
-    def initialize(**args)
-      super status: self.class.succeeds.first, **args
-    end
   end
 end
