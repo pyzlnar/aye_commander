@@ -10,9 +10,9 @@ module AyeCommander
         define_method kind do |*args, prepend: false, &block|
           args.push block if block
           if prepend
-            hooks[kind].unshift(*args)
+            hooks[kind] = args + hooks[kind]
           else
-            hooks[kind].concat(args)
+            hooks[kind] += args
           end
         end
 
