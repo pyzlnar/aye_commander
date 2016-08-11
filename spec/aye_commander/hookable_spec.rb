@@ -2,7 +2,7 @@ describe AyeCommander::Hookable::ClassMethods do
   let(:command)  { Class.new.send(:include, AyeCommander::Command) }
   let(:instance) { command.new }
 
-  %i(before around after).each do |kind|
+  %i(before around after aborted).each do |kind|
     context ".#{kind}" do
       it "adds the args to the #{kind} hooks array" do
         command.send kind, :some, :method
@@ -40,7 +40,7 @@ describe AyeCommander::Hookable::ClassMethods do
     end
   end
 
-  %i(before after).each do |kind|
+  %i(before after aborted).each do |kind|
     context ".call_#{kind}_hooks" do
       before :each do
         body = -> { success? }
