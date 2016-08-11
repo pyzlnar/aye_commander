@@ -6,7 +6,9 @@ describe AyeCommander::Hookable::ClassMethods do
     context ".#{kind}" do
       it "adds the args to the #{kind} hooks array" do
         command.send kind, :some, :method
-        expect(command.before_hooks).to eq [:some, :method]
+        expect(command.send("#{kind}_hooks")).to eq [:some, :method]
+        expect(command.instance_variable_get :@hooks).to_not be_empty
+        expect(command.instance_variable_get(:@hooks).default).to be_empty
       end
 
       it 'adds the received block as a block, after the args' do
