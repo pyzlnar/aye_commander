@@ -106,7 +106,8 @@ module AyeCommander
     def execute(*commands, abort_on_failure: self.class.abort_on_failure?)
       commands.each do |command_class|
         args = command.to_hash
-        @command = command_class.call(**args, skip_cleanup: :command)
+        options = { skip_cleanup: :command, skip_validations: :receives }
+        @command = command_class.call(**args, **options)
         executed.push(command)
 
         if command.failure? && abort_on_failure
