@@ -20,7 +20,7 @@ module AyeCommander
       end
     end
 
-    # These module defines methods that allow to read and know about the status
+    # This module defines methods that allow to read and know about the status
     module Readable
       attr_reader :status
 
@@ -35,7 +35,7 @@ module AyeCommander
       end
     end
 
-    # These module defines methods that allow to modify the status
+    # This module defines methods that allow to modify the status
     module Writeable
       attr_writer :status
 

@@ -1,23 +1,21 @@
 describe AyeCommander::Resultable::ClassMethods do
-  let(:command)  { Class.new.send(:include, AyeCommander::Command) }
-  let(:instance) { command.new }
-  let(:result_class) { command.result_class }
+  include_context :command
 
   context '.result' do
     it 'returns the command if command option is specified' do
-      expect(command.result instance, :command).to eq instance
+      expect(command.result(instance, :command)).to eq instance
     end
 
     it 'calls and returns .new_result with the complete hash if true option is specified' do
       expect(instance).to receive(:to_hash).and_return(:stubbed)
       expect(command).to  receive(:new_result).with(:stubbed).and_return(:result)
-      expect(command.result instance, true).to eq :result
+      expect(command.result(instance, true)).to eq :result
     end
 
     it 'calls and returns .new_result with the result hash if no option is specified' do
       expect(instance).to receive(:to_result_hash).and_return(:stubbed)
       expect(command).to  receive(:new_result).with(:stubbed).and_return(:result)
-      expect(command.result instance, false).to eq :result
+      expect(command.result(instance, false)).to eq :result
     end
   end
 
@@ -45,9 +43,7 @@ describe AyeCommander::Resultable::ClassMethods do
     it 'only defines the class once' do
       expect(result_class.object_id).to eq command.result_class.object_id
     end
-  end
 
-  context 'p.define_result_class' do
     it 'includes the necessary result modules' do
       expect(result_class).to include AyeCommander::Initializable
       expect(result_class).to include AyeCommander::Inspectable

@@ -5,6 +5,7 @@ module AyeCommander
     #
     # When a command, the status is set based on the first succeeds saved in the
     # class. In most cases this will be :success
+    #
     # When a result, the status is sent in the initialization so it is in theory
     # possible to have a result without a status, though not through this gem.
     def initialize(**args)

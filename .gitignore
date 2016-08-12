@@ -49,5 +49,6 @@ Gemfile.lock
 # unless supporting rvm < 1.11.0 or doing something fancy, ignore this:
 .rvmrc
 
-# Ignoring asciidoctor generated README
+# Ignoring asciidoctor generated files
 README.html
+CHANGELOG.html

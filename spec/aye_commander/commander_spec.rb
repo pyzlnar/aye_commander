@@ -1,12 +1,5 @@
 describe AyeCommander::Commander::ClassMethods do
-  let(:includer)  { Module.new.send(:include, AyeCommander::Commander) }
-  let(:includer2) { Module.new.send(:include, includer) }
-  let(:inheriter) { Class.new(commander) }
-
-  let(:commander) { Class.new.send(:include,  AyeCommander::Commander) }
-  let(:instance)  { commander.new }
-
-  let(:command)   { Class.new.send(:include, AyeCommander::Command) }
+  include_context :commander
 
   context '.included' do
     it 'includes Commanders Class Methods when included' do
@@ -87,12 +80,12 @@ describe AyeCommander::Commander::ClassMethods do
   context '.abort_on_failure' do
     it 'sets the @abort_on_failure to true when called without arguments' do
       commander.abort_on_failure
-      expect(commander.instance_variable_get :@abort_on_failure).to be true
+      expect(commander.instance_variable_get(:@abort_on_failure)).to be true
     end
 
     it 'sets the @abort_on_failure to the received argument' do
       commander.abort_on_failure false
-      expect(commander.instance_variable_get :@abort_on_failure).to be false
+      expect(commander.instance_variable_get(:@abort_on_failure)).to be false
     end
   end
 
@@ -106,10 +99,7 @@ describe AyeCommander::Commander::ClassMethods do
 end
 
 describe AyeCommander::Commander do
-  let(:commander) { Class.new.send(:include, AyeCommander::Commander) }
-  let(:instance)  { commander.new }
-  let(:command)   { Class.new.send(:include, AyeCommander::Command) }
-  let(:commandi)  { command.new }
+  include_context :commander
 
   context '#initialize' do
     it 'initializes the commander with the required variables' do

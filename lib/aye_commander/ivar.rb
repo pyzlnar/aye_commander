@@ -2,26 +2,35 @@ module AyeCommander
   # This module contains mostly methods related to method missing and instance
   # variables
   module Ivar
-    # Class Methods used when a reader is not defined
+    # Instance variable related class methods
     module ClassMethods
-      # Helps decide whether to add using uses or just the reader
+      # Adds the received reader to the class.
+      # It prefers using 'uses' it available (command), but will use attr_reader
+      # if it isn't (result).
       def define_missing_reader(reader)
         respond_to?(:uses) ? uses(reader) : attr_reader(reader)
       end
 
       # Transforms the received name to instance variable form
+      # Eg: command -> @command
       def to_ivar(name)
         name[0] == '@' ? name.to_sym : "@#{name}".to_sym
       end
 
       # Transforms the received name to normal variable form
+      # Eg: @command -> command
       def to_nvar(name)
         name[0] == '@' ? name[1..-1].to_sym : name.to_sym
       end
     end
 
-    # Helps a command and result repond to read methods of instance variables
+    # Helps a command and result respond to read methods of instance variables
+    # This functionality is divided into two different modules since commander
+    # includes both, but result only includes Readable
     module Readable
+      # A command will only respond to a read instance variable if it receives
+      # a valid instance variable name that is already defined within the
+      # command or result.
       def method_missing(name, *args)
         var_name = to_ivar(name)
         if instance_variable_defined? var_name
@@ -34,7 +43,8 @@ module AyeCommander
         super
       end
 
-      # Removes the received instance variable name
+      # This helps remove an instance variable name from the current command.
+      # Consider using the .returns method instead.
       def remove!(name)
         remove_instance_variable to_ivar(name)
       end
@@ -58,8 +68,10 @@ module AyeCommander
       end
     end
 
-    # Method missing to write instance_variables
+    # Helps a command respond to methods that would be writers
     module Writeable
+      # Any method that ends with an equal sign will be able to be handled by
+      # this method missing.
       def method_missing(name, *args)
         if name[-1] == '='
           var_name = to_ivar(name[0...-1])

@@ -13,13 +13,110 @@
 :showtitle:
 :source-highlighter: coderay
 
+image:https://badge.fury.io/rb/aye_commander.svg["Gem Version", link="https://badge.fury.io/rb/aye_commander"]
 image:https://travis-ci.org/pyzlnar/aye_commander.svg?branch=master["Build Status", link="https://travis-ci.org/pyzlnar/aye_commander"]
 image:https://codeclimate.com/github/pyzlnar/aye_commander/badges/gpa.svg["Code Climate", link="https://codeclimate.com/github/pyzlnar/aye_commander"]
 image:https://codeclimate.com/github/pyzlnar/aye_commander/badges/coverage.svg["Test Coverage", link="https://codeclimate.com/github/pyzlnar/aye_commander/coverage"]
 
+== Requirements
+
+- Ruby version >= 2.0
+
+== Installation
+
+To use AyeCommander add it to your Gemfile:
+
+[source,ruby]
+gem 'aye_commander'
+
+And bundle!
+
+[source,ruby]
+bundle install
+
+Or to use without bundler, install the gem:
+
+[source,ruby]
+gem install aye_commander
+
+And then require it from your code
+
+[source,ruby]
+require 'aye_commander'
+
 == Introduction
-AyeCommander attempts to be yet another simple gem that takes care of all your Command Pattern
-necessities in Ruby.
+
+AyeCommander is a gem that helps to develop classes that follow the command pattern.
+
+=== What is a Command?
+
+[quote, Russ Oslen]
+____
+A command is an object that does nothing but wait to be executed and, when executed, goes out and
+performs an application-specific task.
+____
+
+Simply put, a command is an object that does but one thing. So if only does one thing... why would
+you need to use them?
+
+=== When to use a Command
+
+Let's imagine that we have to do a complicated operation in a web application, like charging money.
+Just the charging alone might involved consuming one or more services to authorize and charge the
+card, save several records with information about the payments and so on and so forth.
+
+Writing all this code in a model is not exactly correct since it handles way more than just one
+model and using a controller would not only make a fat controller, but also harder to read.
+
+If we instead write all this logic in one (or more) commands, the code becomes not only easier to
+read and understand, but also easier to reuse on a different context.
+
+[source,ruby]
+----
+# Instead of letting the model handle more responsability than it should
+class Order
+  def create_order
+    charge_card
+    save_payment
+    update_order
+  end
+end
+
+# Or polluting the controller with more than just, "How to respond to the end user?"
+class OrdersController
+  def create
+    charge_card
+    save_payment
+    update_order
+    flash[:notice] = "Everything went well"
+  end
+end
+
+# Why not extract it all a command
+class CheckoutOrderCommand
+  include AyeCommander::Command
+  def call
+    charge_card
+    save_payment
+    update_order
+  end
+end
+
+# Or maybe even several commands
+class CheckoutOrderCommand
+  include AyeCommander::Commander
+  execute ChargeCardCommand, SavePaymentCommand, UpdateOrderCommand
+end
+----
+
+=== When to NOT use a Command
+
+As stated before a command is an object that does one thing. +
+This simple definition may make it tempting to write commands left and right, but never forget that
+you need to https://en.wikipedia.org/wiki/KISS_principle[KISS]. If what you're trying to do is
+simple it doesn't really need be extracted into a command.
+
+Ok, lets get cracking!
 
 == The Command
 
@@ -446,13 +543,13 @@ Calling the commander will run the commands one by one... and that's pretty much
 
 [source,ruby]
 ----
-class Palpetine
+class Palpatine
   include AyeCommander::Commander
   execute HelpRepublic, Order66, BuildEmpire
 end
 
-Palpetine.call
-=> #<Palpetine::Result @status: success, @executed: [#<HelpRepublic @status: success>, #<Order66 @status: success>, #<BuildEmpire @status: success>]>
+Palpatine.call
+=> #<Palpatine::Result @status: success, @executed: [#<HelpRepublic @status: success>, #<Order66 @status: success>, #<BuildEmpire @status: success>]>
 ----
 
 ==== Commander Result
@@ -501,14 +598,14 @@ On the other hand if the command we're running *fails* the commander itself will
 
 [source,ruby]
 ----
-class Palpetine
+class Palpatine
   include AyeCommander::Commander
   execute HelpRepublic, Order66, BuildEmpire
 end
 
 # If Order66 were to fail
-Palpetine.call
-=> #<Palpetine::Result @status: failure, @executed: [#<HelpRepublic @status: success>, #<Order66 @status: jedi_escaped>]>
+Palpatine.call
+=> #<Palpatine::Result @status: failure, @executed: [#<HelpRepublic @status: success>, #<Order66 @status: jedi_escaped>]>
 ----
 
 === When we need more tweaking
@@ -589,9 +686,36 @@ class UndecisiveCommander
 end
 ----
 
-== Missing for v1.0
+== Top tips and tricks
 
-- Complete Readme
-- Last Codecheckup!
-- Actual documentation
-- Rereview tests
+- Never forget when and when not to use a command
+
+- Have naming conventions +
+I really suggest that for commands (and commanders), you finish their names with `Command`. This
+clears up what they are and maybe what they do just by looking at the name.
+
+- Use private methods to know what your command does at first glance +
+
+[source,ruby]
+----
+class UpdateExchangeRatesCommand
+  include AyeCommander::Command
+
+  def call
+    fetch_todays_exchange_rates
+    save_exchange_rates
+  end
+end
+----
+
+- But if the logic is too complicated, split it into more commands
+
+[source,ruby]
+----
+class UpdateExchangeRatesCommand
+  include AyeCommander::Commander
+  execute FetchExchangeRatesCommand, SaveExchangeRates
+end
+----
+
+- Write code, have fun!

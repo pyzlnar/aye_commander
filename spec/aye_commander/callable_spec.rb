@@ -1,6 +1,5 @@
 describe AyeCommander::Callable::ClassMethods do
-  let(:command)  { Class.new.send(:include, AyeCommander::Command) }
-  let(:instance) { command.new }
+  include_context :command
 
   context '.call' do
     let(:args) { { some: :other, irrelevant: :args } }
@@ -14,7 +13,7 @@ describe AyeCommander::Callable::ClassMethods do
     end
 
     it 'runs the aborted hooks if command was aborted' do
-      allow(command).to  receive(:call_before_hooks){ throw :abort!, :aborted }
+      allow(command).to  receive(:call_before_hooks) { throw :abort!, :aborted }
       expect(command).to receive(:call_aborted_hooks)
       command.call(args)
     end
@@ -38,8 +37,7 @@ describe AyeCommander::Callable::ClassMethods do
 end
 
 describe AyeCommander::Callable do
-  let(:command)  { Class.new.send(:include, AyeCommander::Command) }
-  let(:instance) { command.new }
+  include_context :command
 
   context '#call' do
     it 'exists' do
