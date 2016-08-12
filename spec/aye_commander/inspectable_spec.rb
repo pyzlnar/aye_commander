@@ -1,6 +1,5 @@
 describe AyeCommander::Inspectable do
-  let(:command)  { Class.new.send(:include, AyeCommander::Command) }
-  let(:instance) { command.new }
+  include_context :command
 
   before :each do
     instance.instance_variable_set :@variable, :something
@@ -9,7 +8,7 @@ describe AyeCommander::Inspectable do
 
   context '#inspect' do
     it 'gives a string representation of the innards of the class' do
-      expect(instance.inspect).to match /#<#<Class:\dx\w+> @status: success, @variable: something, @other: potato>/
+      expect(instance.inspect).to match(/#<#<Class:\dx\w+> @status: success, @variable: something, @other: potato>/)
     end
   end
 

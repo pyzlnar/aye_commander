@@ -1,7 +1,5 @@
 describe AyeCommander::Ivar::ClassMethods do
-  let(:command)  { Class.new.send(:include, AyeCommander::Command) }
-  let(:instance) { command.new }
-  let(:result)   { command.result_class.new }
+  include_context :command
 
   context '.define_missing_reader' do
     it 'calls uses if its a command' do
@@ -18,42 +16,41 @@ describe AyeCommander::Ivar::ClassMethods do
 
   context '.to_ivar' do
     it 'returns itself when the name is already in ivar form' do
-      expect(command.to_ivar :@var).to eq :@var
+      expect(command.to_ivar(:@var)).to eq :@var
     end
 
     it 'returns the ivar form when name is not in ivar form' do
-      expect(command.to_ivar :var).to eq :@var
+      expect(command.to_ivar(:var)).to eq :@var
     end
 
     it 'is able to handle strings' do
-      expect(command.to_ivar '@var').to eq :@var
-      expect(command.to_ivar 'var').to  eq :@var
+      expect(command.to_ivar('@var')).to eq :@var
+      expect(command.to_ivar('var')).to  eq :@var
     end
   end
 
   context '.to_nvar' do
     it 'returns itself when name is already in nvar form' do
-      expect(command.to_nvar :var).to eq :var
+      expect(command.to_nvar(:var)).to eq :var
     end
 
     it 'returns the nvar form when name is not in nvar form' do
-      expect(command.to_nvar :@var).to eq :var
+      expect(command.to_nvar(:@var)).to eq :var
     end
 
     it 'is able to handle strings' do
-      expect(command.to_nvar '@var').to eq :var
-      expect(command.to_nvar 'var').to  eq :var
+      expect(command.to_nvar('@var')).to eq :var
+      expect(command.to_nvar('var')).to  eq :var
     end
   end
 end
 
 describe AyeCommander::Ivar::Readable do
-  let(:command)  { Class.new.send(:include, AyeCommander::Command) }
-  let(:instance) { command.new }
+  include_context :command
 
   context '#method_missing' do
     it 'raises if asked a method without an instance variable defined' do
-      expect { instance.taco  }.to raise_error NoMethodError
+      expect { instance.taco }.to raise_error NoMethodError
     end
 
     it 'responds if asked the name of an instance variable' do
@@ -107,8 +104,7 @@ describe AyeCommander::Ivar::Readable do
 end
 
 describe AyeCommander::Ivar::Writeable do
-  let(:command)  { Class.new.send(:include, AyeCommander::Command) }
-  let(:instance) { command.new }
+  include_context :command
 
   context '#method_missing' do
     it 'responds to equality assignments' do

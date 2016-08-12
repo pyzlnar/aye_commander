@@ -1,6 +1,5 @@
-describe AyeCommander::Limitable do
-  let(:command)   { Class.new.send(:include, AyeCommander::Command) }
-  let(:instance)  { command.new }
+describe AyeCommander::Limitable::ClassMethods do
+  include_context :command
   let(:args)      { %i(arg1 arg2) }
 
   context '.uses' do
@@ -102,7 +101,7 @@ describe AyeCommander::Limitable do
 
     it 'does nothing if it receives extra arguments' do
       command.requires :hello, :you
-      expect { command.validate_required_arguments **args, extra: :arg }.to_not raise_error
+      expect { command.validate_required_arguments(**args, extra: :arg) }.to_not raise_error
     end
 
     it 'raises an error when the required arguments are not fully contained in the received ones' do

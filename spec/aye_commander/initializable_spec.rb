@@ -1,6 +1,5 @@
 describe AyeCommander::Initializable do
-  let(:command)  { Class.new.send(:include, AyeCommander::Command) }
-  let(:instance) { command.new }
+  include_context :command
 
   context '#initialize' do
     it 'sets the instance variables with the received arguments' do
@@ -16,7 +15,7 @@ describe AyeCommander::Initializable do
     end
 
     it 'is able to handle the case when no args are received' do
-      expect{ command.new }.to_not raise_error
+      expect { command.new }.to_not raise_error
     end
 
     context 'when a command' do
