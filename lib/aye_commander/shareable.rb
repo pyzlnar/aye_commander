@@ -3,7 +3,7 @@ module AyeCommander
     # This module serves to make sure that when included or inherited everything
     # related to the command is preserved
     # Prepend is not really supported, but you really shouldnt be prepending a
-    # Command so... meh
+    # command so... meh
     module ClassMethods
       # This ensures that class methods are extended when Command is included
       def included(includer)

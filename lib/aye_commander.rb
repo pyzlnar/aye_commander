@@ -13,6 +13,7 @@ require 'aye_commander/resultable'
 require 'aye_commander/command'
 require 'aye_commander/commander'
 
-# AyeCommander is a (hopefully) easy to use library for Command pattern objects.
+# AyeCommander is a (hopefully) easy to use gem that helps develop classes that
+# follow the command pattern.
 module AyeCommander
 end

@@ -6,8 +6,8 @@ module AyeCommander
     # Eventhough the Commander is basically a Command, it does come with some
     # minor tweaking to keep it simple to understand and consistant
     module ClassMethods
-      # This ensure that Commander specific class methods are included when
-      # Commander is included
+      # This ensure that Commander specific class methods and commander specific
+      # class instance variables are included when the Commander is included
       def included(includer)
         super
         includer.extend ClassMethods
@@ -15,8 +15,8 @@ module AyeCommander
         includer.instance_variable_set :@abort_on_failure, @abort_on_failure
       end
 
-      # This ensures that the executes instance variable is available for
-      # classes that inherit from an included Commander
+      # This ensures that Commander specific instance variables become available
+      # for any class inheriting from another that includes the command
       def inherited(inheriter)
         super
         inheriter.instance_variable_set :@executes, @executes
@@ -49,8 +49,8 @@ module AyeCommander
         end
       end
 
-      # This returns an anonymous command class to be used to initialize the
-      # received commander args.
+      # Returns an anonymous command class to be used to initialize the received
+      # commander args.
       def command
         @command ||= Class.new.send(:include, Command)
       end
@@ -65,13 +65,13 @@ module AyeCommander
         @executes ||= []
       end
 
-      # Can be used to set a default behaviour of a Commander that overwrites
+      # Can be used to set a default behavior of a Commander that overwrites
       # call.
       def abort_on_failure(value = true)
         @abort_on_failure = value
       end
 
-      # Returns the abort_on_failure variable
+      # Returns the abort_on_failure
       def abort_on_failure?
         @abort_on_failure
       end

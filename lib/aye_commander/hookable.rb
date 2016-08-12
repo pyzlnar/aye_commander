@@ -1,12 +1,20 @@
 module AyeCommander
+  # Hooks are available for all commands.
+  # They allow you to run specific parts of code before, around, after the
+  # command is called or when if the command was aborted
   module Hookable
-    # Hooks allow to run something, before, around and after the command runs.
+    # All hook functionality is defined at a class level, but runs at instance
+    # level
     module ClassMethods
       TYPES = %i(before around after aborted).freeze
 
       TYPES.each do |kind|
         # Defines .before .around .after and .aborted
-        # Each simply save the hooks in an array.
+        # Saves the received argument into their own array
+        #
+        # Options
+        # prepend: Makes it so that the received args are pushed to the front of
+        #          the hook array instead of the end.
         define_method kind do |*args, prepend: false, &block|
           args.push block if block
           if prepend
@@ -38,11 +46,14 @@ module AyeCommander
       end
 
       # Prepares the hooks so they can just be called.
-      # Before and after are similar in the sense that they just make all the
-      # hooks callable and then call themselves.
+      # Before after and around hooks are similar in the sense that they just
+      # need to make all the received hooks callable and then they call
+      # themselves.
+      #
       # Arounds on the other hand... they basically wrap themselves in procs so
-      # that you can call the proc inside the proc that gives the proc. Quite a
-      # headache. Why would you need multiple around blocks in the first place?
+      # that you can call the proc inside the proc that gives the proc.
+      # Quite a headache.
+      # Why would you need multiple around blocks in the first place?
       def prepare_hooks(kind, command)
         hooks = callable_hooks(kind, command)
         return hooks unless kind == :around
@@ -53,7 +64,7 @@ module AyeCommander
         [around_proc]
       end
 
-      # Makes all the hooks callable in the command context
+      # Makes all the saved hooks callable in the command context
       def callable_hooks(kind, command)
         hooks[kind].map do |hook|
           case hook

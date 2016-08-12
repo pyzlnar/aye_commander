@@ -4,8 +4,8 @@ module AyeCommander
   module Command
     # Class Methods that define the functionality of a command.
     # The most complex functionality is in fact contained at class level since
-    # most I wanted to preserve the commands as clean as possible to avoid
-    # name clases or similar.
+    # I wanted to preserve the commands as clean as possible to avoid name
+    # clashes within the instance.
     module ClassMethods
       include Abortable::ClassMethods
       include Callable::ClassMethods
