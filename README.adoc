@@ -694,6 +694,7 @@ I really suggest that for commands (and commanders), you finish their names with
 clears up what they are and maybe what they do just by looking at the name.
 
 - Use private methods to know what your command does at first glance +
+
 [source,ruby]
 ----
 class UpdateExchangeRatesCommand
@@ -707,6 +708,7 @@ end
 ----
 
 - But if the logic is too complicated, split it into more commands
+
 [source,ruby]
 ----
 class UpdateExchangeRatesCommand
