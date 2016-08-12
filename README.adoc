@@ -13,6 +13,7 @@
 :showtitle:
 :source-highlighter: coderay
 
+image:https://badge.fury.io/rb/aye_commander.svg["Gem Version", link="https://badge.fury.io/rb/aye_commander"]
 image:https://travis-ci.org/pyzlnar/aye_commander.svg?branch=master["Build Status", link="https://travis-ci.org/pyzlnar/aye_commander"]
 image:https://codeclimate.com/github/pyzlnar/aye_commander/badges/gpa.svg["Code Climate", link="https://codeclimate.com/github/pyzlnar/aye_commander"]
 image:https://codeclimate.com/github/pyzlnar/aye_commander/badges/coverage.svg["Test Coverage", link="https://codeclimate.com/github/pyzlnar/aye_commander/coverage"]
