@@ -1,0 +1,15 @@
+// Asciidoctor Source
+// AyeCommander CHANGELOG
+//
+// Original author:
+// - pyzlnar
+//
+// Notes:
+// Compile with: $ asciidoctor README.adoc
+
+= Changelog
+
+== v1.0.0
+2016-08-12
+
+- :confetti_ball: Initial Release!
