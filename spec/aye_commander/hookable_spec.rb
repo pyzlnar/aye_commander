@@ -1,13 +1,12 @@
 describe AyeCommander::Hookable::ClassMethods do
-  let(:command)  { Class.new.send(:include, AyeCommander::Command) }
-  let(:instance) { command.new }
+  include_context :command
 
   %i(before around after aborted).each do |kind|
     context ".#{kind}" do
       it "adds the args to the #{kind} hooks array" do
         command.send kind, :some, :method
         expect(command.send("#{kind}_hooks")).to eq [:some, :method]
-        expect(command.instance_variable_get :@hooks).to_not be_empty
+        expect(command.instance_variable_get(:@hooks)).to_not be_empty
         expect(command.instance_variable_get(:@hooks).default).to be_empty
       end
 
@@ -20,24 +19,24 @@ describe AyeCommander::Hookable::ClassMethods do
       it 'adds the args at the end of the array' do
         command.send kind, :first
         command.send kind, :second, :third
-        expect(command.send "#{kind}_hooks").to eq [:first, :second, :third]
+        expect(command.send("#{kind}_hooks")).to eq [:first, :second, :third]
       end
 
       it 'adds the args at the beginning of the array with the prepend option' do
         command.send kind, :first
         command.send kind, :second, :third, prepend: true
-        expect(command.send "#{kind}_hooks").to eq [:second, :third, :first]
+        expect(command.send("#{kind}_hooks")).to eq [:second, :third, :first]
       end
     end
 
     context ".#{kind}_hooks" do
       it 'returns empty array with nothing set' do
-        expect(command.send "#{kind}_hooks").to eq []
+        expect(command.send("#{kind}_hooks")).to eq []
       end
 
       it 'returns the array of hooks' do
         command.instance_variable_set :@hooks, kind => [:hello]
-        expect(command.send "#{kind}_hooks").to eq [:hello]
+        expect(command.send("#{kind}_hooks")).to eq [:hello]
       end
     end
   end
@@ -52,13 +51,13 @@ describe AyeCommander::Hookable::ClassMethods do
       end
 
       it 'makes all supported hooks callable' do
-        expect(command.send "call_#{kind}_hooks", instance).to all(respond_to :call)
+        expect(command.send("call_#{kind}_hooks", instance)).to all(respond_to :call)
       end
 
       it 'calls all the prepared hooks' do
         hooks = command.send "call_#{kind}_hooks", instance
         allow(command).to receive(:prepare_hooks).and_return(hooks)
-        expect(hooks).to all(receive :call)
+        expect(hooks).to all(receive(:call))
         command.send "call_#{kind}_hooks", instance
       end
 
@@ -72,7 +71,7 @@ describe AyeCommander::Hookable::ClassMethods do
   context '.call_around_hooks' do
     before :each do
       body = lambda do |step|
-        @order ||=[]
+        @order ||= []
         number = order.count + 1
         @order << number
 
@@ -100,7 +99,7 @@ describe AyeCommander::Hookable::ClassMethods do
 
     it 'should call the hooks in the correct order' do
       command.call_around_hooks(instance)
-      expect(instance.order).to eq [1,2,3,4,4,3,2,1]
+      expect(instance.order).to eq [1, 2, 3, 4, 4, 3, 2, 1]
     end
   end
 end

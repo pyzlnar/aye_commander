@@ -1,6 +1,5 @@
 describe AyeCommander::Command do
-  let(:command)   { Class.new.send(:include, AyeCommander::Command) }
-  let(:commandsc) { command.singleton_class }
+  include_context :command
 
   context 'a command' do
     it 'includes the necessary instance modules' do

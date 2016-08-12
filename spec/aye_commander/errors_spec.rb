@@ -7,7 +7,7 @@ describe AyeCommander::MissingRequiredArgumentError do
 
   it 'should have a descriptive message of the error' do
     errori = error.new [:taco]
-    expect(errori.message).to eq "Missing required arguments: [:taco]"
+    expect(errori.message).to eq 'Missing required arguments: [:taco]'
   end
 end
 
@@ -20,6 +20,6 @@ describe AyeCommander::UnexpectedReceivedArgumentError do
 
   it 'should have a descriptive message of the error' do
     errori = error.new [:taco]
-    expect(errori.message).to eq "Received unexpected arguments: [:taco]"
+    expect(errori.message).to eq 'Received unexpected arguments: [:taco]'
   end
 end

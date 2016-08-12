@@ -1,8 +1,5 @@
 describe AyeCommander::Shareable::ClassMethods do
-  let(:command)   { Class.new.send(:include,  AyeCommander::Command) }
-  let(:inheriter) { Class.new(command) }
-  let(:includer)  { Module.new.send(:include, AyeCommander::Command) }
-  let(:includer2) { Module.new.send(:include, includer) }
+  include_context :command
 
   context '.included' do
     it 'ensures that the includer has command methods available' do
@@ -20,7 +17,7 @@ describe AyeCommander::Shareable::ClassMethods do
       includer.succeeds_with :inclusion
       expect(includer2.receives).to include :hopefully_this
       expect(includer2.succeeds).to include :inclusion
-      expect(includer2.send :hooks).to be_empty
+      expect(includer2.send(:hooks)).to be_empty
     end
   end
 
@@ -35,7 +32,7 @@ describe AyeCommander::Shareable::ClassMethods do
       command.succeeds_with :inclusion
       expect(inheriter.receives).to include :hopefully_this
       expect(inheriter.succeeds).to include :inclusion
-      expect(inheriter.send :hooks).to be_empty
+      expect(inheriter.send(:hooks)).to be_empty
     end
   end
 end

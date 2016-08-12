@@ -1,5 +1,5 @@
 describe AyeCommander::Abortable::ClassMethods do
-  let(:command)  { Class.new.send(:include, AyeCommander::Command) }
+  include_context :command
 
   context '.abortable' do
     it 'does nothing if nothing happens' do
@@ -13,8 +13,7 @@ describe AyeCommander::Abortable::ClassMethods do
 end
 
 describe AyeCommander::Abortable do
-  let(:command)  { Class.new.send(:include, AyeCommander::Command) }
-  let(:instance) { command.new }
+  include_context :command
 
   context '#abort' do
     it 'throws with :abort! symbol' do

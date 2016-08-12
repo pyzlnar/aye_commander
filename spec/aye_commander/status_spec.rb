@@ -1,6 +1,5 @@
 describe AyeCommander::Status::ClassMethods do
-  let(:command)  { Class.new.send(:include, AyeCommander::Command) }
-  let(:instance) { command.new }
+  include_context :command
 
   context '.succeeds' do
     it 'returns [:success] if nothing else has been set' do
@@ -42,8 +41,7 @@ describe AyeCommander::Status::ClassMethods do
 end
 
 describe AyeCommander::Status::Readable do
-  let(:command)  { Class.new.send(:include, AyeCommander::Command) }
-  let(:instance) { command.new }
+  include_context :command
 
   context 'when included' do
     it 'adds #status method' do
@@ -77,8 +75,7 @@ describe AyeCommander::Status::Readable do
 end
 
 describe AyeCommander::Status::Writeable do
-  let(:command)  { Class.new.send(:include, AyeCommander::Command) }
-  let(:instance) { command.new }
+  include_context :command
 
   context 'when included' do
     it 'adds #status= method' do
@@ -98,4 +95,3 @@ describe AyeCommander::Status::Writeable do
     end
   end
 end
-
