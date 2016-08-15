@@ -42,17 +42,34 @@ module AyeCommander
       # Defines the result class with the necessary modules so it can behave
       # like a result
       def define_result_class
-        readers = self.readers
+        readers       = self.readers
+        command_class = self
         result = Class.new do
-          include Initializable
-          include Inspectable
-          include Status::Readable
-          include Ivar::Readable
-          extend  Ivar::ClassMethods
+          @command_class = command_class
+          include Result
+          extend  Result::ClassMethods
           attr_reader(*readers)
         end
         const_set 'Result', result
       end
+    end
+
+    # This are the methods included to every result class
+    module Result
+      # These methods are extended to the result class
+      module ClassMethods
+        attr_reader :command_class
+        include Ivar::ClassMethods
+
+        def succeeds
+          command_class.succeeds
+        end
+      end
+
+      include Initializable
+      include Inspectable
+      include Status::Readable
+      include Ivar::Readable
     end
   end
 end
