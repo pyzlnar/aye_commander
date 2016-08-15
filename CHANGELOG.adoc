@@ -9,6 +9,12 @@
 
 = Changelog
 
+== v1.0.1
+2016-08-15
+
+- :bug: Fixed Result#success?
+- :paw_prints: Added License to README
+
 == v1.0.0
 2016-08-12
 
