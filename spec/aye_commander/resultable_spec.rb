@@ -44,6 +44,10 @@ describe AyeCommander::Resultable::ClassMethods do
       expect(result_class.object_id).to eq command.result_class.object_id
     end
 
+    it 'assigns the command to @command_class' do
+      expect(result_class.command_class).to eq command
+    end
+
     it 'includes the necessary result modules' do
       expect(result_class).to include AyeCommander::Initializable
       expect(result_class).to include AyeCommander::Inspectable

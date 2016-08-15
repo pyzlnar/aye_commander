@@ -719,3 +719,7 @@ end
 ----
 
 - Write code, have fun!
+
+== License
+
+AyeCommander is released under the https://opensource.org/licenses/MIT[MIT License].
