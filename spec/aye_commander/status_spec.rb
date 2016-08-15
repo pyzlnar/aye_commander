@@ -65,6 +65,10 @@ describe AyeCommander::Status::Readable do
       instance.status = :success
       expect(instance.success?).to be false
     end
+
+    it 'works for results' do
+      expect(result.success?).to be true
+    end
   end
 
   context '#failure?' do
