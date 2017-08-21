@@ -4,6 +4,14 @@ module AyeCommander
     def initialize(info = nil)
       @info = info
     end
+
+    def inspect
+      "#<#{self.class}: #{self}>"
+    end
+
+    def to_s
+      message
+    end
   end
 
   # Raised when command specifies 'requires' and one or more required arguments
