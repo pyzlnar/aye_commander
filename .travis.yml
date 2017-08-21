@@ -10,6 +10,8 @@ matrix:
   allow_failures:
     - rvm: ruby-head
 
+script: bundle exec rspec && bundle exec codeclimate-test-reporter
+
 notifications:
   email:
     on_success: change
