@@ -5,15 +5,22 @@
 // - pyzlnar
 //
 // Notes:
-// Compile with: $ asciidoctor README.adoc
+// Compile with: $ asciidoctor CHANGELOG.adoc
 
 = Changelog
+
+== v1.0.2
+2017-08-21
+
+- :zap: link:https://github.com/pyzlnar/aye_commander/pull/32[#32] Fix CI
+- :notes: link:https://github.com/pyzlnar/aye_commander/pull/33[#33] Fix rubocop
+- :bug: link:https://github.com/pyzlnar/aye_commander/pull/34[#34] Fix error messages
 
 == v1.0.1
 2016-08-15
 
-- :bug: Fixed Result#success?
-- :paw_prints: Added License to README
+- :bug: link:https://github.com/pyzlnar/aye_commander/pull/28[#28] Fixed Result#success?
+- :paw_prints: link:https://github.com/pyzlnar/aye_commander/pull/29[#29] Added License to README
 
 == v1.0.0
 2016-08-12
