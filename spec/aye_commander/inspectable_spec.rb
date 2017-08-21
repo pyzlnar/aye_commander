@@ -20,7 +20,7 @@ describe AyeCommander::Inspectable do
 
     it 'gives a hash representation of the innards of the class with the requested values' do
       result = { :@variable => :something, :@other => :potato }
-      expect(instance.to_hash([:@variable, :other])).to eq result
+      expect(instance.to_hash(%i[@variable other])).to eq result
     end
   end
 

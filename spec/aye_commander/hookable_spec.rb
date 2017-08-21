@@ -1,11 +1,11 @@
 describe AyeCommander::Hookable::ClassMethods do
   include_context :command
 
-  %i(before around after aborted).each do |kind|
+  %i[before around after aborted].each do |kind|
     context ".#{kind}" do
       it "adds the args to the #{kind} hooks array" do
         command.send kind, :some, :method
-        expect(command.send("#{kind}_hooks")).to eq [:some, :method]
+        expect(command.send("#{kind}_hooks")).to eq %i[some method]
         expect(command.instance_variable_get(:@hooks)).to_not be_empty
         expect(command.instance_variable_get(:@hooks).default).to be_empty
       end
@@ -19,13 +19,13 @@ describe AyeCommander::Hookable::ClassMethods do
       it 'adds the args at the end of the array' do
         command.send kind, :first
         command.send kind, :second, :third
-        expect(command.send("#{kind}_hooks")).to eq [:first, :second, :third]
+        expect(command.send("#{kind}_hooks")).to eq %i[first second third]
       end
 
       it 'adds the args at the beginning of the array with the prepend option' do
         command.send kind, :first
         command.send kind, :second, :third, prepend: true
-        expect(command.send("#{kind}_hooks")).to eq [:second, :third, :first]
+        expect(command.send("#{kind}_hooks")).to eq %i[second third first]
       end
     end
 
@@ -41,7 +41,7 @@ describe AyeCommander::Hookable::ClassMethods do
     end
   end
 
-  %i(before after aborted).each do |kind|
+  %i[before after aborted].each do |kind|
     context ".call_#{kind}_hooks" do
       before :each do
         body = -> { success? }

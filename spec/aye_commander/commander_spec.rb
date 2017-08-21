@@ -13,7 +13,7 @@ describe AyeCommander::Commander::ClassMethods do
 
     it 'saves the necessary instance variables for the commander' do
       includer.execute :taco, :burrito
-      expect(includer2.executes).to eq %i(taco burrito)
+      expect(includer2.executes).to eq %i[taco burrito]
     end
   end
 
@@ -25,7 +25,7 @@ describe AyeCommander::Commander::ClassMethods do
 
     it 'saves the necessary instance variables for the commander' do
       commander.execute :taco, :burrito
-      expect(inheriter.executes).to eq %i(taco burrito)
+      expect(inheriter.executes).to eq %i[taco burrito]
     end
   end
 
@@ -62,7 +62,7 @@ describe AyeCommander::Commander::ClassMethods do
   context '.execute' do
     it 'adds the received arguments to the executes array' do
       commander.execute :taco, :burrito
-      expect(commander.executes).to eq %i(taco burrito)
+      expect(commander.executes).to eq %i[taco burrito]
     end
   end
 
