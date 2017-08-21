@@ -6,7 +6,7 @@ module AyeCommander
     # All hook functionality is defined at a class level, but runs at instance
     # level
     module ClassMethods
-      TYPES = %i(before around after aborted).freeze
+      TYPES = %i[before around after aborted].freeze
 
       TYPES.each do |kind|
         # Defines .before .around .after and .aborted

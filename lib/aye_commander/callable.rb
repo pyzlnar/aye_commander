@@ -35,7 +35,6 @@ module AyeCommander
     # #call is what a user redefines in their own command, and what he
     # customizes to give a command the behavior he desires.
     # An empty call is defined in a command so they can be run even without one.
-    def call
-    end
+    define_method(:call) {}
   end
 end
