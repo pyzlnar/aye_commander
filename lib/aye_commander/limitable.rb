@@ -5,7 +5,7 @@ module AyeCommander
     # Limitable is a module which functionality is completely defined at class
     # level.
     module ClassMethods
-      LIMITERS = %i(receives requires returns).freeze
+      LIMITERS = %i[receives requires returns].freeze
 
       # Contains all the limiters
       def limiters
@@ -54,13 +54,24 @@ module AyeCommander
 
       # Validates the limiter arguments
       def validate_arguments(args, skip_validations: false)
-        unless [true, :requires].include?(skip_validations) || requires.empty?
+        if validate_required_arguments?(skip_validations)
           validate_required_arguments(args)
         end
 
-        unless [true, :receives].include?(skip_validations) || receives.empty?
-          validate_received_arguments(args)
-        end
+        return unless validate_received_arguments?(skip_validations)
+        validate_received_arguments(args)
+      end
+
+      # Dont validate if asked to skip or requires is empty
+      def validate_required_arguments?(skip_validations)
+        return if [true, :requires].include?(skip_validations)
+        requires.any?
+      end
+
+      # Dont validate if asked to skip or receives is empty
+      def validate_received_arguments?(skip_validations)
+        return if [true, :receives].include?(skip_validations)
+        receives.any?
       end
 
       # Validates the required arguments

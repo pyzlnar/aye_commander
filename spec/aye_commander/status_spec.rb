@@ -7,30 +7,30 @@ describe AyeCommander::Status::ClassMethods do
     end
 
     it 'returns whathever the :@succeds class instance variable contains' do
-      command.instance_variable_set :@succeeds, %i(im a little teapot)
-      expect(command.succeeds).to eq %i(im a little teapot)
+      command.instance_variable_set :@succeeds, %i[im a little teapot]
+      expect(command.succeeds).to eq %i[im a little teapot]
     end
   end
 
   context '.suceeds_with' do
-    let(:args) { %i(succ1 succ2) }
+    let(:args) { %i[succ1 succ2] }
 
     before :each do
       command.succeeds_with(*args)
     end
 
     it 'adds the values to the succeeds array' do
-      expect(command.succeeds).to eq %i(success succ1 succ2)
+      expect(command.succeeds).to eq %i[success succ1 succ2]
     end
 
     it 'allows consecutive succeeds' do
       command.succeeds_with :potato
-      expect(command.succeeds).to eq %i(success succ1 succ2 potato)
+      expect(command.succeeds).to eq %i[success succ1 succ2 potato]
     end
 
     it 'doesnt add repeated succeeds' do
       command.succeeds_with(*args)
-      expect(command.succeeds).to eq %i(success succ1 succ2)
+      expect(command.succeeds).to eq %i[success succ1 succ2]
     end
 
     it 'removes :success from the array if called with the exclude_suceed option' do

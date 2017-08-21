@@ -1,6 +1,6 @@
 describe AyeCommander::Limitable::ClassMethods do
   include_context :command
-  let(:args)      { %i(arg1 arg2) }
+  let(:args) { %i[arg1 arg2] }
 
   context '.uses' do
     it 'should call save_variable' do
@@ -17,7 +17,7 @@ describe AyeCommander::Limitable::ClassMethods do
     end
   end
 
-  %i(receives requires returns).each do |limiter|
+  %i[receives requires returns].each do |limiter|
     context ".#{limiter}" do
       before :each do
         command.public_send limiter, *args
@@ -34,12 +34,12 @@ describe AyeCommander::Limitable::ClassMethods do
 
       it 'should add consecutive values without any problem' do
         command.public_send limiter, :arg3
-        expect(command.limiters[limiter]).to eq %i(arg1 arg2 arg3)
+        expect(command.limiters[limiter]).to eq %i[arg1 arg2 arg3]
       end
 
       it 'should not add repeated args' do
         command.public_send limiter, :arg1, :arg4
-        expect(command.limiters[limiter]).to eq %i(arg1 arg2 arg4)
+        expect(command.limiters[limiter]).to eq %i[arg1 arg2 arg4]
       end
     end
   end

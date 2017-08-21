@@ -9,7 +9,7 @@ module AyeCommander
       def included(includer)
         super
         includer.extend AyeCommander::Command::ClassMethods
-        %i(@limiters @succeeds @hooks).each do |var|
+        %i[@limiters @succeeds @hooks].each do |var|
           if instance_variable_defined? var
             includer.instance_variable_set var, instance_variable_get(var)
           end
@@ -21,7 +21,7 @@ module AyeCommander
       # the variables to the inheriter.
       def inherited(inheriter)
         super
-        %i(@limiters @succeeds @hooks).each do |var|
+        %i[@limiters @succeeds @hooks].each do |var|
           if instance_variable_defined? var
             inheriter.instance_variable_set var, instance_variable_get(var)
           end
