@@ -2,6 +2,9 @@ module AyeCommander
   # This module contains mostly methods related to method missing and instance
   # variables
   module Ivar
+    AT = '@'.freeze
+    EQ = '='.freeze
+
     # Instance variable related class methods
     module ClassMethods
       # Adds the received reader to the class.
@@ -14,13 +17,21 @@ module AyeCommander
       # Transforms the received name to instance variable form
       # Eg: command -> @command
       def to_ivar(name)
-        name[0] == '@' ? name.to_sym : "@#{name}".to_sym
+        name[0] == at ? name.to_sym : "@#{name}".to_sym
       end
 
       # Transforms the received name to normal variable form
       # Eg: @command -> command
       def to_nvar(name)
-        name[0] == '@' ? name[1..-1].to_sym : name.to_sym
+        name[0] == at ? name[1..-1].to_sym : name.to_sym
+      end
+
+      def at
+        ::AyeCommander::Ivar::AT
+      end
+
+      def eq
+        ::AyeCommander::Ivar::EQ
       end
     end
 
@@ -73,7 +84,7 @@ module AyeCommander
       # Any method that ends with an equal sign will be able to be handled by
       # this method missing.
       def method_missing(name, *args)
-        if name[-1] == '='
+        if name[-1] == self.class.eq
           var_name = to_ivar(name[0...-1])
           instance_variable_set var_name, args.first
           self.class.uses name[0...-1]
@@ -87,7 +98,7 @@ module AyeCommander
       private
 
       def respond_to_missing?(name, *args)
-        name[-1] == '=' || super
+        name[-1] == self.class.eq || super
       end
     end
   end
