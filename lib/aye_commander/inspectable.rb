@@ -2,13 +2,28 @@ module AyeCommander
   # This module handles methods that help a command instance represent its
   # contents in different ways.
   module Inspectable
-    # This inspect mimics the one ActiveModel uses so hopefully it will also
-    # look pretty during a pry session when the variables become too many.
+    # This inspect mimics ActiveModel for a better inspection.
     def inspect
       inspection = to_hash.map do |name, value|
         "#{name}: #{value}"
       end.compact.join(', ')
       "#<#{self.class} #{inspection}>"
+    end
+
+    # This method mimics ActiveModel pretty_print for a better console output.
+    def pretty_print(pp)
+      pp.object_address_group(self) do
+        ivs = sorted_instance_variables.map(&:to_s)
+        pp.seplist(ivs, proc { pp.text ',' }) do |iv|
+          pp.breakable ' '
+          pp.group(1) do
+            pp.text iv
+            pp.text ':'
+            pp.breakable
+            pp.pp instance_variable_get(iv)
+          end
+        end
+      end
     end
 
     # Returns a hash of the specified instance_variables
@@ -31,6 +46,12 @@ module AyeCommander
       else
         to_hash
       end
+    end
+
+    # Sorts the instance variables in alphabetical order, but keeps @status at
+    # the beginning for easier inspection
+    def sorted_instance_variables
+      [:@status] | instance_variables.sort
     end
   end
 end
