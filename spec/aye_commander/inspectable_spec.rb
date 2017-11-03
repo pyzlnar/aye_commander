@@ -12,6 +12,13 @@ describe AyeCommander::Inspectable do
     end
   end
 
+  context '#pretty_print' do
+    it 'gives a pretty print representation of the innards of the class' do
+      pretty_print = PP.pp(instance, ''.dup)
+      expect(pretty_print).to match(/#<#<Class:\dx\w+>:\dx\w+\n @status: :success,\n @other: :potato,\n @variable: :something>/)
+    end
+  end
+
   context '#to_hash' do
     it 'gives a hash representation of the innards of the class' do
       result = { :@status => :success, :@variable => :something, :@other => :potato }
@@ -40,6 +47,13 @@ describe AyeCommander::Inspectable do
       command.returns :badger
       result = { :@status => :success, :@badger => nil }
       expect(instance.to_result_hash).to eq result
+    end
+  end
+
+  context '#sorted_instance_variables' do
+    it 'sorts the instance variables alphabetically but keeps @status at the beginning' do
+      sorted = %i[@status @other @variable]
+      expect(instance.sorted_instance_variables).to eq sorted
     end
   end
 end
