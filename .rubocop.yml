@@ -5,3 +5,6 @@ Metrics/BlockLength:
 Metrics/LineLength:
   Exclude:
     - spec/**/*
+
+Metrics/MethodLength:
+  Max: 20
