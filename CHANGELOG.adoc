@@ -9,6 +9,12 @@
 
 = Changelog
 
+== v1.1.0
+2017-11-02
+
+- :bug: link:https://github.com/pyzlnar/aye_commander/pull/37[#37] Fix character character heap allocation
+- :sparkles: link:https://github.com/pyzlnar/aye_commander/pull/38[#38] Added #pretty_print support
+
 == v1.0.2
 2017-08-21
 
