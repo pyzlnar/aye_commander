@@ -19,6 +19,12 @@ describe AyeCommander::Shareable::ClassMethods do
       expect(includer2.succeeds).to include :inclusion
       expect(includer2.send(:hooks)).to be_empty
     end
+
+    it 'does not add the instance variables of the includers to the original' do
+      includer.requires :something
+      includer2.requires :other
+      expect(includer.requires).to_not include :other
+    end
   end
 
   context '.inherited' do
@@ -33,6 +39,12 @@ describe AyeCommander::Shareable::ClassMethods do
       expect(inheriter.receives).to include :hopefully_this
       expect(inheriter.succeeds).to include :inclusion
       expect(inheriter.send(:hooks)).to be_empty
+    end
+
+    it 'does not add the instance variables of the inheriter to the original' do
+      command.requires :something
+      inheriter.requires :other
+      expect(command.requires).to_not include :other
     end
   end
 end
