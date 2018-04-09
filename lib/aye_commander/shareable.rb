@@ -11,7 +11,7 @@ module AyeCommander
         includer.extend AyeCommander::Command::ClassMethods
         %i[@limiters @succeeds @hooks].each do |var|
           if instance_variable_defined? var
-            includer.instance_variable_set var, instance_variable_get(var)
+            includer.instance_variable_set var, instance_variable_get(var).dup
           end
         end
       end
@@ -23,7 +23,7 @@ module AyeCommander
         super
         %i[@limiters @succeeds @hooks].each do |var|
           if instance_variable_defined? var
-            inheriter.instance_variable_set var, instance_variable_get(var)
+            inheriter.instance_variable_set var, instance_variable_get(var).dup
           end
         end
       end
