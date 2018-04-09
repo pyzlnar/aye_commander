@@ -9,6 +9,11 @@
 
 = Changelog
 
+== v1.1.1
+2018-04-09
+
+- :bug: link:https://github.com/pyzlnar/aye_commander/pull/40[#40] Fix issue with shareable module
+
 == v1.1.0
 2017-11-02
 
